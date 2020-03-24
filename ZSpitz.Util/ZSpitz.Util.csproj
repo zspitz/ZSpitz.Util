@@ -10,14 +10,13 @@
         <Description>Helper extension methods and functions</Description>
         <Copyright>Copyright (c) 2020 Zev Spitz</Copyright>
         <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <!--<PackageProjectUrl>https://github.com/zspitz/ExpressionTreeToString/wiki</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/zspitz/ExpressionTreeToString.git</RepositoryUrl>
+        <PackageProjectUrl>https://github.com/zspitz/ZSpitz.Util</PackageProjectUrl>
+        <RepositoryUrl>https://github.com/zspitz/ZSpitz.Util.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageTags>expression-tree code-generation visual-basic.net vb.net csharp</PackageTags>
-        <PackageReleaseNotes>Non-statement expression support is complete, escaped string literals, exceptions written into source</PackageReleaseNotes>-->
+        <PackageTags>.net cshapr vb.net</PackageTags>
+        <PackageReleaseNotes>Some helper methods and functions</PackageReleaseNotes>
         <AssemblyName>ZSpitz.Util</AssemblyName>
         <Version>0.1.0</Version>
         <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     </PropertyGroup>
-
 </Project>
