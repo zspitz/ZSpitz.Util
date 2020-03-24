@@ -5,6 +5,10 @@ init:
 branches:
   only:
     - master
+only_commits:
+  files:
+    - ZSpitz/Utils/
+    - appveyor.yml
 skip_tags: true
 
 dotnet_csproj:
