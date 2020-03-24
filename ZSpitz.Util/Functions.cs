@@ -42,7 +42,7 @@ namespace ZSpitz.Util {
                     ret = $"\"{s}\"";
                 }
             } else if (o is Enum e) {
-                ret = $"{e.GetType().Name}.{e.ToString()}";
+                ret = $"{e.GetType().Name}.{e}";
             } else if (o is MemberInfo mi && language.In(CSharp, VisualBasic)) {
                 bool isType;
                 bool isByRef = false;
