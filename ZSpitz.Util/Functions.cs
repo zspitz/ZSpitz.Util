@@ -291,5 +291,7 @@ namespace ZSpitz.Util {
         }
 
         public static string NewLines(int count = 2) => Enumerable.Repeat(Environment.NewLine, count).Joined("");
+
+        public static T IIFE<T>(Func<T> fn) => fn();
     }
 }
