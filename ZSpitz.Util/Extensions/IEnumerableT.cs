@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
@@ -64,5 +65,9 @@ namespace ZSpitz.Util {
         public static HashSet<T> ToHashSet<T>(this IEnumerable<T> src, IEqualityComparer<T>? comparer = null) => new HashSet<T>(src, comparer);
 
         public static IEnumerable<T> SelectMany<T>(this IEnumerable<IEnumerable<T>> src) => src.SelectMany(x => x);
+
+        public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(this IEnumerable<T> src) => new ReadOnlyCollection<T>(src.ToList());
+
+
     }
 }

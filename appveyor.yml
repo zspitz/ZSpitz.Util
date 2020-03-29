@@ -7,7 +7,8 @@ branches:
     - master
 only_commits:
   files:
-    - ZSpitz/Utils/
+    - ZSpitz.Util/
+    - ZSpitz.Util.Wpf.Core/
     - appveyor.yml
 skip_tags: true
 
@@ -24,7 +25,7 @@ before_build:
 - cmd: dotnet restore
 
 artifacts:
-  - path: ZSpitz.Util\bin\Debug\*.nupkg
+  - path: '**\*.nupkg'
     type: NuGetPackage
 
 deploy:

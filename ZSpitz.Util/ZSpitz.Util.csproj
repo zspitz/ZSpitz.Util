@@ -13,7 +13,7 @@
         <PackageProjectUrl>https://github.com/zspitz/ZSpitz.Util</PackageProjectUrl>
         <RepositoryUrl>https://github.com/zspitz/ZSpitz.Util.git</RepositoryUrl>
         <RepositoryType>git</RepositoryType>
-        <PackageTags>.net cshapr vb.net</PackageTags>
+        <PackageTags>.net csharp</PackageTags>
         <PackageReleaseNotes>Some helper methods and functions</PackageReleaseNotes>
         <AssemblyName>ZSpitz.Util</AssemblyName>
         <Version>0.1.0</Version>
