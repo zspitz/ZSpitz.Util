@@ -8,7 +8,7 @@ branches:
 only_commits:
   files:
     - ZSpitz.Util/
-    - ZSpitz.Util.Wpf.Core/
+    - ZSpitz.Util.Wpf/
     - appveyor.yml
 skip_tags: true
 

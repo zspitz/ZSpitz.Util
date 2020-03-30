@@ -12,7 +12,7 @@ namespace ZSpitz.Util.Wpf {
         public static void NotifyChanged<T>(
                 this INotifyPropertyChanged inpc,
                 ref T current, T newValue,
-                PropertyChangedEventHandler handler,
+                PropertyChangedEventHandler? handler,
                 [CallerMemberName] string? name = null)
         {
             if (EqualityComparer<T>.Default.Equals(current, newValue)) { return; }
