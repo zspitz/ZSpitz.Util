@@ -6,7 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ZSpitz.Util.Wpf.Core.Extensions {
+namespace ZSpitz.Util.Wpf {
     public static class INotifyPropertyChangedExtensions {
         // https://stackoverflow.com/a/60668668/111794
         public static void NotifyChanged<T>(
