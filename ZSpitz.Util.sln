@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZSpitz.Util", "ZSpitz.Util\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{6731AABA-6345-46C6-B8EB-5CB755FEB03A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZSpitz.Util.Wpf.Core", "ZSpitz.Util.Wpf.Core\ZSpitz.Util.Wpf.Core.csproj", "{691C588A-9446-4681-894C-B26A7B13642C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZSpitz.Util.Wpf", "ZSpitz.Util.Wpf\ZSpitz.Util.Wpf.csproj", "{9DC99973-C91F-4462-990C-437F19CD98A2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -23,10 +23,10 @@ Global
 		{6731AABA-6345-46C6-B8EB-5CB755FEB03A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6731AABA-6345-46C6-B8EB-5CB755FEB03A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6731AABA-6345-46C6-B8EB-5CB755FEB03A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{691C588A-9446-4681-894C-B26A7B13642C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{691C588A-9446-4681-894C-B26A7B13642C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{691C588A-9446-4681-894C-B26A7B13642C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{691C588A-9446-4681-894C-B26A7B13642C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9DC99973-C91F-4462-990C-437F19CD98A2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DC99973-C91F-4462-990C-437F19CD98A2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DC99973-C91F-4462-990C-437F19CD98A2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DC99973-C91F-4462-990C-437F19CD98A2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
