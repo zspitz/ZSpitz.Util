@@ -67,7 +67,5 @@ namespace ZSpitz.Util {
         public static IEnumerable<T> SelectMany<T>(this IEnumerable<IEnumerable<T>> src) => src.SelectMany(x => x);
 
         public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(this IEnumerable<T> src) => new ReadOnlyCollection<T>(src.ToList());
-
-
     }
 }
