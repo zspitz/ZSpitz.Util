@@ -67,5 +67,11 @@ namespace ZSpitz.Util {
         public static IEnumerable<T> SelectMany<T>(this IEnumerable<IEnumerable<T>> src) => src.SelectMany(x => x);
 
         public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(this IEnumerable<T> src) => new ReadOnlyCollection<T>(src.ToList());
+
+        // https://stackoverflow.com/a/18304070/111794
+        public static bool IsUnique<T>(this IEnumerable<T> src) {
+            var hs = new HashSet<T>();
+            return src.All(hs.Add);
+        }
     }
 }
