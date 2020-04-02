@@ -9,5 +9,6 @@ namespace ZSpitz.Util {
         public static IEnumerable<TValue> Values<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> src) => src.Select(x => x.Value);
         public static IEnumerable<TResult> SelectKVP<TKey, TValue, TResult>(this IDictionary<TKey, TValue> dict, Func<TKey, TValue, TResult> selector) => dict.Select(kvp => selector(kvp.Key, kvp.Value));
         public static IEnumerable<TKey> Keys<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> src) => src.Select(x => x.Key);
+        public static ILookup<TKey, TValue> ToLookup<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> src) => src.ToLookup(kvp => kvp.Key, kvp => kvp.Value);
     }
 }
