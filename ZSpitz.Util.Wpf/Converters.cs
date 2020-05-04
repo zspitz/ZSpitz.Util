@@ -5,8 +5,7 @@ using System.Windows.Data;
 using static System.Windows.DependencyProperty;
 using static System.Windows.Visibility;
 
-namespace ZSpitz.Util.Wpf
-{
+namespace ZSpitz.Util.Wpf {
     public abstract class ReadOnlyConverterBase : IValueConverter {
         public abstract object Convert(object value, Type targetType, object parameter, CultureInfo culture);
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => UnsetValue;
