@@ -73,5 +73,7 @@ namespace ZSpitz.Util {
             var hs = new HashSet<T>();
             return src.All(hs.Add);
         }
+
+        public static IEnumerable<T> Select<T>(this IEnumerable<T> src) => src.Select(x => x);
     }
 }
