@@ -21,4 +21,9 @@ namespace ZSpitz.Util.Wpf {
             return Collapsed;
         }
     }
+
+    public class NotNullToVisibilityConverter : ReadOnlyConverterBase {
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+            value is null ? Collapsed : Visible;
+    }
 }
