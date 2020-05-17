@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Diagnostics;
+using System.Windows.Documents;
 using System.Windows.Input;
 using ZSpitz.Util;
 
@@ -9,16 +10,22 @@ namespace ZSpitz.Util.Wpf {
             parameter switch {
                 Uri _ => true,
                 string _ => true,
+                Hyperlink _ => true,
                 _ => false
             };
 
         public void Execute(object parameter) {
-            var psi = parameter switch {
-                Uri uri => new ProcessStartInfo(uri.ToString()),
-                string urlPath => new ProcessStartInfo(urlPath),
-                (string url, string args) => new ProcessStartInfo(url, args),
-                _ => null
-            };
+            ProcessStartInfo psi;
+            if (parameter is (string url, string args)) {
+                psi = new ProcessStartInfo(url, args);
+            } else {
+                psi = new ProcessStartInfo(parameter switch {
+                    Uri uri => uri.ToString(),
+                    string urlPath => urlPath,
+                    Hyperlink link => link.NavigateUri.ToString(),
+                    _ => null
+                });
+            }
             if (psi is null || psi.FileName.IsNullOrWhitespace()) { return; }
             psi.UseShellExecute = true;
             Process.Start(psi);
