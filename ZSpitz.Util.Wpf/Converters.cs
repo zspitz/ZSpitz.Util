@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections;
 using System.Globalization;
+using System.Linq;
+using System.Windows;
 using System.Windows.Data;
 using static System.Windows.DependencyProperty;
 using static System.Windows.Visibility;
@@ -36,4 +38,11 @@ namespace ZSpitz.Util.Wpf {
                 (Equals(value, MatchValue) ? Collapsed : Visible) :
                 (Equals(value, MatchValue) ? Visible : Collapsed);
     }
+
+    public class MultiVisibilityConverter : ReadOnlyMultiConverterBase {
+        public override object Convert(object[] values, Type targetType, object parameter, CultureInfo culture) =>
+            values.Cast<Visibility>().All(x => x == Visible) ? Visible : Collapsed;
+    }
+
+
 }
