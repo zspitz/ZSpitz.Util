@@ -297,5 +297,7 @@ namespace ZSpitz.Util {
         public static string NewLines(int count = 2) => Enumerable.Repeat(Environment.NewLine, count).Joined("");
 
         public static T IIFE<T>(Func<T> fn) => fn();
+
+        public static bool IsEqual<T>(T current, T newValue) => EqualityComparer<T>.Default.Equals(current, newValue);
     }
 }
