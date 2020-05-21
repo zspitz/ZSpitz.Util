@@ -47,7 +47,7 @@ namespace ExpressionTreeToString.Tests {
                 {GetMember(() => "".Length), ("typeof(string).GetProperty(\"Length\")", "GetType(String).GetProperty(\"Length\")") }
             }.SelectT((o, x) => {
                 var (csharp, vb) = x;
-                return (o, ($"#{o.GetType().Name}", csharp, vb));
+                return (o, ($"#{o!.GetType().Name}", csharp, vb));
             }).AddRangeTo(testData);
 
            var dte = new DateTime(1981, 1, 1);

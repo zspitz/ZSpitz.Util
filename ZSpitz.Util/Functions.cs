@@ -126,17 +126,21 @@ namespace ZSpitz.Util {
         public static MemberInfo GetMember<T>(Expression<Func<T>> expr) => ((MemberExpression)expr.Body).Member;
 
         // TODO handle more than 8 values
-        public static object[] TupleValues(object tuple) {
+        public static object?[] TupleValues(object tuple) {
             if (!tuple.GetType().IsTupleType()) { throw new InvalidOperationException(); }
             var fields = tuple.GetType().GetFields();
             if (fields.Any()) { return tuple.GetType().GetFields().Select(x => x.GetValue(tuple)).ToArray(); }
             return tuple.GetType().GetProperties().Select(x => x.GetValue(tuple)).ToArray();
         }
 
-        public static bool TryTupleValues(object tuple, [NotNullWhen(true)] out object[]? values) {
-            var isTupleType = tuple.GetType().IsTupleType();
-            values = isTupleType ? TupleValues(tuple) : null;
-            return isTupleType;
+        public static bool TryTupleValues(object tuple, [NotNullWhen(true)] out object?[]? values) {
+            // this code cannot be simplified -- https://github.com/dotnet/roslyn/issues/44494
+            if (tuple.GetType().IsTupleType()) {
+                values = TupleValues(tuple);
+                return true;
+            }
+            values = null;
+            return false;
         }
 
         // based on https://github.com/dotnet/corefx/blob/7cf002ec36109943c048ec8da8ef80621190b4be/src/Common/src/CoreLib/System/Text/StringBuilder.cs#L1514

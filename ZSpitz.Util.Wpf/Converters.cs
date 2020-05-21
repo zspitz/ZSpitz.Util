@@ -22,8 +22,18 @@ namespace ZSpitz.Util.Wpf {
         }
     }
 
+    [Obsolete("Use VisibilityConverter with MatchValue set to null and Invert set to true")]
     public class NotNullToVisibilityConverter : ReadOnlyConverterBase {
         public override object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
             value is null ? Collapsed : Visible;
+    }
+
+    public class VisibilityConverter : ReadOnlyConverterBase {
+        public object MatchValue { get; set; } = true;
+        public bool Invert { get; set; } = false;
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+            Invert ?
+                (Equals(value, MatchValue) ? Collapsed : Visible) :
+                (Equals(value, MatchValue) ? Visible : Collapsed);
     }
 }

@@ -6,16 +6,6 @@ using ZSpitz.Util;
 
 namespace ZSpitz.Util.Wpf {
     public class LaunchUrlOrFileCommand : ICommand {
-        //public bool CanExecute(object parameter) => !(
-        //        parameter switch
-        //        {
-        //            Hyperlink link => link.NavigateUri.ToString(),
-        //            Uri uri => uri.ToString(),
-        //            string s => s,
-        //            (string url, string _) => url,
-        //            _ => ""
-        //        }
-        //    ).IsNullOrWhitespace();
         public bool CanExecute(object parameter) => true;
 
         public void Execute(object parameter) {
