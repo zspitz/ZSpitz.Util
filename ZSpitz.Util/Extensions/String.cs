@@ -65,5 +65,10 @@ namespace ZSpitz.Util {
             if (s == null || s.Length == 0) { return s; }
             return char.ToLowerInvariant(s[0]) + s.Substring(1);
         }
+
+        public static bool EndsWithAny(this string s, params string[] testStrings) => s.EndsWithAny(testStrings);
+        public static bool EndsWithAny(this string s, IEnumerable<string> testStrings) => testStrings.Any(x => s.EndsWith(x));
+        public static bool EndsWithAny(this string s, StringComparison comparisonType, params string[] testStrings) => s.EndsWithAny(comparisonType, testStrings);
+        public static bool EndsWithAny(this string s, StringComparison comparisonType, IEnumerable<string> testStrings) => testStrings.Any(x => s.EndsWith(x, comparisonType));
     }
 }
