@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
 using System.Windows;
 using System.Windows.Data;
 using static System.Windows.DependencyProperty;
@@ -44,5 +45,13 @@ namespace ZSpitz.Util.Wpf {
             values.Cast<Visibility>().All(x => x == Visible) ? Visible : Collapsed;
     }
 
-
+    public class TruthyVisibilityConverter : ReadOnlyConverterBase {
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+            value switch {
+                string s => !s.IsNullOrWhitespace(),
+                bool b => b,
+                null => false,
+                _ => throw new NotImplementedException()
+            } ? Visible : Collapsed;
+    }
 }
