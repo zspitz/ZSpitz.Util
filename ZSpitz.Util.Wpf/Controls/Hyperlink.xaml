@@ -4,4 +4,14 @@
            xmlns:util="clr-namespace:ZSpitz.Util.Wpf"
            Command="{x:Static util:Commands.LaunchUrlOrFileCommand}"
            CommandParameter="{Binding NavigateUri, RelativeSource={RelativeSource Self}}"
-           ToolTip="{Binding NavigateUri, RelativeSource={RelativeSource Self}}" />
+           ToolTip="{Binding NavigateUri, RelativeSource={RelativeSource Self}}">
+    <Hyperlink.Resources>
+        <Style x:Key="{x:Type Hyperlink}" TargetType="Hyperlink">
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Foreground" Value="Blue" />
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Hyperlink.Resources>
+</Hyperlink>
