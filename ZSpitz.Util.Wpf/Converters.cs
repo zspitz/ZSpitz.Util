@@ -4,15 +4,16 @@ using System.Globalization;
 using System.Linq;
 using System.Windows;
 using System.Windows.Data;
-using static System.Windows.DependencyProperty;
 using static System.Windows.Visibility;
 
 namespace ZSpitz.Util.Wpf {
     public abstract class ReadOnlyConverterBase : IValueConverter {
+        protected readonly object UnsetValue = DependencyProperty.UnsetValue;
         public abstract object Convert(object value, Type targetType, object parameter, CultureInfo culture);
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture) => UnsetValue;
     }
     public abstract class ReadOnlyMultiConverterBase : IMultiValueConverter {
+        protected readonly object UnsetValue = DependencyProperty.UnsetValue;
         public abstract object Convert(object[] values, Type targetType, object parameter, CultureInfo culture);
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture) => new[] { UnsetValue };
     }
