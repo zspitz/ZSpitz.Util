@@ -222,7 +222,6 @@ namespace ZSpitz.Util.Wpf {
                 Height =
                      lengths.Length > index ? lengths[index] : defaultRowHeight
             }).AddRangeTo(RowDefinitions);
-
         }
         /// <summary>
         /// Handles the row count changed event
