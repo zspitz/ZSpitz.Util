@@ -5,9 +5,9 @@ using System.ComponentModel;
 using System.Linq;
 using ZSpitz.Util;
 using static System.Linq.Enumerable;
-using static ZSpitz.Util.FilterStates;
+using static ZSpitz.Util.Wpf.FilterStates;
 
-namespace ZSpitz.Util {
+namespace ZSpitz.Util.Wpf {
     public class TreeNodeVM<TData> : TreeNodeBase<TData, TreeNodeVM<TData>, ReadOnlyObservableCollection<TreeNodeVM<TData>>>, INotifyPropertyChanged {
         private readonly ObservableCollection<TreeNodeVM<TData>> oc = new ObservableCollection<TreeNodeVM<TData>>();
         protected override (IList<TreeNodeVM<TData>> innerCollection, ReadOnlyObservableCollection<TreeNodeVM<TData>> collectionWrapper) InitWith() {

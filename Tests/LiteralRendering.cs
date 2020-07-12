@@ -5,7 +5,7 @@ using static ZSpitz.Util.Functions;
 using ZSpitz.Util;
 using static ZSpitz.Util.LanguageNames;
 
-namespace ExpressionTreeToString.Tests {
+namespace ZSpitz.Util.Tests {
     [Trait("Type", "Literal rendering")]
     public class LiteralRendering {
         [Theory]

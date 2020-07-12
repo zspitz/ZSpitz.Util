@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Xunit;
 using static ZSpitz.Util.Functions;
 
-namespace ExpressionTreeToString.Tests {
+namespace ZSpitz.Util.Tests {
     [Trait("Type", "FormatStringParsing")]
     public class FormatStringParsing {
         private static void RunTest(string format, List<(string, int?, int?, string?)> expected) =>
