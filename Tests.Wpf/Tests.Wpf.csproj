@@ -5,7 +5,6 @@
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
-    <DefineConstants>USELOCAL</DefineConstants>
   </PropertyGroup>
 
   <ItemGroup>
@@ -22,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ZSpitz.Util\ZSpitz.Util.csproj" />
+    <ProjectReference Include="..\ZSpitz.Util.Wpf\ZSpitz.Util.Wpf.csproj" />
   </ItemGroup>
 
 </Project>
