@@ -77,7 +77,7 @@ namespace ZSpitz.Util {
         public static IEnumerable<T> Select<T>(this IEnumerable<T> src) => src.Select(x => x);
 
         // https://stackoverflow.com/a/27097569
-        public static T Unanimous<T>(this IEnumerable<T> src, T other) {
+        public static T Unanimous<T>(this IEnumerable<T> src, T other = default) {
             bool initialized = false;
             T first = default;
             foreach (var item in src) {
