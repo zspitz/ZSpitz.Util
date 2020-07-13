@@ -68,12 +68,27 @@ namespace ZSpitz.Util {
 
         public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(this IEnumerable<T> src) => new ReadOnlyCollection<T>(src.ToList());
 
-        // https://stackoverflow.com/a/18304070/111794
+        // https://stackoverflow.com/a/18304070
         public static bool IsUnique<T>(this IEnumerable<T> src) {
             var hs = new HashSet<T>();
             return src.All(hs.Add);
         }
 
         public static IEnumerable<T> Select<T>(this IEnumerable<T> src) => src.Select(x => x);
+
+        // https://stackoverflow.com/a/27097569
+        public static T Unanimous<T>(this IEnumerable<T> src, T other) {
+            bool initialized = false;
+            T first = default;
+            foreach (var item in src) {
+                if (!initialized) { 
+                    first = item; 
+                } else if (!EqualityComparer<T>.Default.Equals(first!, item) ) {
+                    return other;
+                }
+            }
+            if (initialized) { return first!; }
+            return other;
+        }
     }
 }
