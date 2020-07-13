@@ -82,7 +82,8 @@ namespace ZSpitz.Util {
             T first = default;
             foreach (var item in src) {
                 if (!initialized) { 
-                    first = item; 
+                    first = item;
+                    initialized = true;
                 } else if (!EqualityComparer<T>.Default.Equals(first!, item) ) {
                     return other;
                 }
