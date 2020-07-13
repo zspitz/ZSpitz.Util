@@ -18,9 +18,14 @@ namespace ZSpitz.Util.Wpf {
         public TreeNodeVM() : this(default!, default) { }
 
         public TreeNodeVM(TData data = default, IEnumerable<TData>? children = default) : base(data, children) {
-            IsSelected = Children.Select(x => x.IsSelected).Unanimous(null);
+            if (Children.None()) {
+                IsSelected = false;
+            } else {
+                IsSelected = Children.Select(x => x.IsSelected).Unanimous();
+            }
+            
             oc.CollectionChanged += (s, e) => {
-                IsSelected = Children.Select(x => x.IsSelected).Unanimous(null);
+                IsSelected = Children.Select(x => x.IsSelected).Unanimous();
                 if (FilterState == DescendantMatched && Children.None(x => x.FilterState.In(Matched, DescendantMatched))) {
                     FilterState = NotMatched;
                 } else if (FilterState == NotMatched && Children.Any(x => x.FilterState.In(Matched,DescendantMatched))) {
