@@ -20,8 +20,12 @@ namespace ZSpitz.Util.Wpf {
         public TreeNodeVM(TData data = default, IEnumerable<TData>? children = default) : base(data, children) {
             IsSelected = Children.Select(x => x.IsSelected).Unanimous(null);
             oc.CollectionChanged += (s, e) => {
-                // TODO check that filterstate is still correct when node is added to / removed from children
-                // TODO check that selection state is still correct when node is added to / removed from children
+                IsSelected = Children.Select(x => x.IsSelected).Unanimous(null);
+                if (FilterState == DescendantMatched && Children.None(x => x.FilterState.In(Matched, DescendantMatched))) {
+                    FilterState = NotMatched;
+                } else if (FilterState == NotMatched && Children.Any(x => x.FilterState.In(Matched,DescendantMatched))) {
+                    FilterState = DescendantMatched;
+                }
             };
         }
 
