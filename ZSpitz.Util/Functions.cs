@@ -87,6 +87,8 @@ namespace ZSpitz.Util {
                 ret = "(" + TupleValues(o).Select(x => RenderLiteral(x, language)).Joined(", ") + ")";
             } else if (type.IsNumeric()) {
                 ret = o.ToString();
+            } else if (o is Exception ex) {
+                ret = $"#{ex.GetType().FriendlyName(language)}:{RenderLiteral(ex.Message, language)}";
             }
 
             if (ret is null) {

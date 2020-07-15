@@ -12,7 +12,7 @@ namespace Tests {
         [MemberData(nameof(TestData))]
         public static void TestLiteral(object o, string language, string expected) {
             var (actualHasLiteral, actual) = TryRenderLiteral(o, language);
-            var expectedHasLiteral = !expected.StartsWith("#") || expected.EndsWith("#");
+            var expectedHasLiteral = !expected.StartsWith("#") || expected.EndsWith("#") || expected.Contains(':'); // because exceptions are rendered as #Exception:Message
             Assert.Equal(expectedHasLiteral, actualHasLiteral);
             Assert.Equal(expected, actual);
         }
@@ -31,7 +31,9 @@ namespace Tests {
                 { new object[] {1}, ("#Object[]", "new[] { 1 }", "{ 1 }")},
                 {Tuple.Create(1,"2"), ("(1, \"2\")", "(1, \"2\")", "(1, \"2\")") },
                 {(1,"2"), ("(1, \"2\")", "(1, \"2\")", "(1, \"2\")") },
-                {"\"", ("#String", "\"\\\"\"", "\"\"\"\"") }
+                {"\"", ("#String", "\"\\\"\"", "\"\"\"\"") },
+                {new InvalidOperationException("This is a message."), ("#InvalidOperationException:\"This is a message.\"", "#InvalidOperationException:\"This is a message.\"", "#InvalidOperationException:\"This is a message.\"") },
+                {new InvalidOperationException("This is a message\non two lines."), ("#InvalidOperationException:#String", "#InvalidOperationException:\"This is a message\\non two lines.\"", "#InvalidOperationException:\"This is a message\non two lines.\"") }
             };
 
            var timerType = typeof(System.Timers.Timer);
