@@ -1,13 +1,11 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using static System.Linq.Expressions.Expression;
 
 namespace ZSpitz.Util {
     public static class ExpressionExtensions {
-        // TODO what about expressions which contain ParameterExpressions?
-        // we'd have to pass in the values to use when calling the compiled lambda, and also which name corresponds to which value
-        // parhaps an array of tuples?
         public static object ExtractValue(this Expression expr) {
             if (!(expr is LambdaExpression lambda)) {
                 lambda = Lambda(expr);
@@ -16,12 +14,13 @@ namespace ZSpitz.Util {
         }
 
         public static bool TryExtractValue(this Expression expr, out object? value) {
-            value = null;
             try {
                 value = expr.ExtractValue();
                 return true;
-            } catch {}
-            return false;
+            } catch (Exception ex) {
+                value = ex;
+                return false;
+            }
         }
 
         public static Expression SansConvert(this Expression expr) =>
