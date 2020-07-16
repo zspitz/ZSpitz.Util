@@ -83,8 +83,10 @@ namespace ZSpitz.Util {
                 } else {
                     ret = $"{{ {values} }}";
                 }
-            } else if (type.IsTupleType()) {
-                ret = "(" + TupleValues(o).Select(x => RenderLiteral(x, language)).Joined(", ") + ")";
+            } else if (type.IsTupleType(out var isTupleType)) {
+                ret = 
+                    (!isTupleType ? "Tuple.Create" : "")
+                    + "(" + TupleValues(o).Select(x => RenderLiteral(x, language)).Joined(", ") + ")";
             } else if (type.IsNumeric()) {
                 ret = o.ToString();
             } else if (o is Exception ex) {

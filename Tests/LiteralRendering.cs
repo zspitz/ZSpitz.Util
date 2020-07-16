@@ -29,7 +29,7 @@ namespace Tests {
                 { "ab\rcd", ("#String", "\"ab\\rcd\"", "\"ab\rcd\"") },
                 { DayOfWeek.Thursday, ("DayOfWeek.Thursday","DayOfWeek.Thursday","DayOfWeek.Thursday") },
                 { new object[] {1}, ("#Object[]", "new[] { 1 }", "{ 1 }")},
-                {Tuple.Create(1,"2"), ("(1, \"2\")", "(1, \"2\")", "(1, \"2\")") },
+                {Tuple.Create(1,"2"), ("Tuple.Create(1, \"2\")", "Tuple.Create(1, \"2\")", "Tuple.Create(1, \"2\")") },
                 {(1,"2"), ("(1, \"2\")", "(1, \"2\")", "(1, \"2\")") },
                 {"\"", ("#String", "\"\\\"\"", "\"\"\"\"") },
                 {new InvalidOperationException("This is a message."), ("#InvalidOperationException:\"This is a message.\"", "#InvalidOperationException:\"This is a message.\"", "#InvalidOperationException:\"This is a message.\"") },

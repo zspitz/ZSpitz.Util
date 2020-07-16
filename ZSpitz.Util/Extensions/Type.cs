@@ -143,8 +143,15 @@ namespace ZSpitz.Util {
         }
 
         public static bool IsTupleType(this Type type) {
+            return type.IsTupleType(out var _);
+        }
+
+        public static bool IsTupleType(this Type type, out bool isValueTuple) {
+            isValueTuple = false;
+
             if (!type.IsGenericType) { return false; }
             var openType = type.GetGenericTypeDefinition();
+
             if (openType.In(
                 typeof(ValueTuple<>),
                 typeof(ValueTuple<,>),
@@ -153,6 +160,13 @@ namespace ZSpitz.Util {
                 typeof(ValueTuple<,,,,>),
                 typeof(ValueTuple<,,,,,>),
                 typeof(ValueTuple<,,,,,,>),
+                typeof(ValueTuple<,,,,,,,>)
+            )) {
+                isValueTuple = true;
+                return true;
+            } 
+            
+            if (openType.In(
                 typeof(Tuple<>),
                 typeof(Tuple<,>),
                 typeof(Tuple<,,>),
@@ -163,8 +177,8 @@ namespace ZSpitz.Util {
             )) {
                 return true;
             }
-            return (openType.In(typeof(ValueTuple<,,,,,,,>), typeof(Tuple<,,,,,,,>))
-                && type.GetGenericArguments()[7].IsTupleType());
+
+            return false;
         }
 
         public static IEnumerable<(Type current, Type? root)> NestedArrayTypes(this Type type) {
