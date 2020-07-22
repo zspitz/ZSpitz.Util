@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using static ZSpitz.Util.LanguageNames;
 
@@ -63,25 +64,56 @@ namespace ZSpitz.Util {
                 }
                 if (isByRef) { ret += ".MakeByRef()"; }
                 if (!isType) {
-                    if (mi is ConstructorInfo) {
-                        ret += ".GetConstructor()";
-                    } else {
-                        var methodName = mi switch {
-                            EventInfo _ => "GetEvent",
-                            FieldInfo _ => "GetField",
-                            MethodInfo _ => "GetMethod",
-                            PropertyInfo _ => "GetProperty",
-                            _ => throw new NotImplementedException(),
-                        };
-                        ret += $".{methodName}(\"{mi.Name}\")";
+                    var methodName = mi switch {
+                        ConstructorInfo _ => "GetConstructor",
+                        EventInfo _ => "GetEvent",
+                        FieldInfo _ => "GetField",
+                        MethodInfo mthdi => "GetMethod",
+                        PropertyInfo _ => "GetProperty",
+                        _ => throw new NotImplementedException()
+                    };
+
+                    var parameters = new List<object>();
+
+                    if (!(mi is ConstructorInfo)) {
+                        parameters.Add(mi.Name);
                     }
+
+                    var typesParameter = (mi switch {
+                        ConstructorInfo ci => ci.GetParameters(),
+                        MethodInfo mthdi => mthdi.GetParameters(),
+                        _ => null
+                    })?.Select(x => x.ParameterType).ToArray();
+
+                    if (typesParameter?.None() ?? false) {
+                        var otherMemberCount = (mi switch {
+                            ConstructorInfo _ => t1.GetConstructors(),
+                            MethodInfo mthdi => t1.GetMethods().Where(x => x.Name == mi.Name),
+                            _ => Enumerable.Empty<MemberInfo>()
+                        }).Count() - 1;
+
+                        if (otherMemberCount == 0) {
+                            typesParameter = null;
+                        }
+                    }
+
+                    if (typesParameter is { }) {
+                        parameters.Add(typesParameter);
+                    }
+
+                    ret += $".{methodName}({parameters.Joined(", ", x => RenderLiteral(x, language))})";
                 }
             } else if (type.IsArray && !type.GetElementType().IsArray && type.GetArrayRank() == 1 && language.In(CSharp, VisualBasic)) {
                 var values = ((Array)o).Cast<object>().Joined(", ", x => RenderLiteral(x, language));
+                values =
+                    values.IsNullOrWhitespace() ?
+                        " " :
+                        $" {values} ";
                 if (language == CSharp) {
-                    ret = $"new[] {{ {values} }}";
+                    var typename = values.IsNullOrWhitespace() ? " " + type.GetElementType().FriendlyName(language) : "";
+                    ret = $"new{typename}[] {{{values}}}";
                 } else {
-                    ret = $"{{ {values} }}";
+                    ret = $"{{{values}}}";
                 }
             } else if (type.IsTupleType(out var isTupleType)) {
                 ret = 
@@ -103,10 +135,10 @@ namespace ZSpitz.Util {
         public static string RenderLiteral(object? o, string language) => TryRenderLiteral(o, language).repr;
 
         /// <summary>Returns a string representation of the value, which may or may not be a valid literal in the language</summary>
-        public static string StringValue(object o, string language) {
+        public static string StringValue(object? o, string language) {
             var (isLiteral, repr) = TryRenderLiteral(o, language);
             if (!isLiteral) {
-                var hasDeclaredToString = o.GetType().GetMethods().Any(x => {
+                var hasDeclaredToString = o!.GetType().GetMethods().Any(x => {
                     if (x.Name != "ToString") { return false; }
                     if (x.GetParameters().Any()) { return false; }
                     if (x.DeclaringType == typeof(object)) { return false; }

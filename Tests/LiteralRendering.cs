@@ -42,10 +42,10 @@ namespace Tests {
            new List<(object?, (string csharp, string vb))>() {
                 {typeof(string), ("typeof(string)", "GetType(String)") },
                 {typeof(string).MakeByRefType(), ("typeof(string).MakeByRef()", "GetType(String).MakeByRef()") },
-                {timerType.GetConstructor(new Type[] { })!, ("typeof(Timer).GetConstructor()", "GetType(Timer).GetConstructor()") },
+                {timerType.GetConstructor(new Type[] { })!, ("typeof(Timer).GetConstructor(new Type[] { })", "GetType(Timer).GetConstructor({ })") },
                 {timerType.GetEvent("Elapsed")!, ("typeof(Timer).GetEvent(\"Elapsed\")", "GetType(Timer).GetEvent(\"Elapsed\")")},
                 {typeof(string).GetField("Empty")!, ("typeof(string).GetField(\"Empty\")", "GetType(String).GetField(\"Empty\")") },
-                { GetMethod(() => Console.WriteLine()), ("typeof(Console).GetMethod(\"WriteLine\")", "GetType(Console).GetMethod(\"WriteLine\")") },
+                { GetMethod(() => Console.WriteLine()), ("typeof(Console).GetMethod(\"WriteLine\", new Type[] { })", "GetType(Console).GetMethod(\"WriteLine\", { })") },
                 {GetMember(() => "".Length), ("typeof(string).GetProperty(\"Length\")", "GetType(String).GetProperty(\"Length\")") }
             }.SelectT((o, x) => {
                 var (csharp, vb) = x;
