@@ -198,10 +198,12 @@ namespace ZSpitz.Util {
         public static IEnumerable<T> GetAttributes<T>(this Type type, bool inherit) where T : Attribute =>
             type.GetCustomAttributes(typeof(T), inherit).Cast<T>();
 
-        public static PropertyInfo[] GetIndexers(this Type type, bool inherit) {
+        private static BindingFlags defaultLookup = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
+        public static PropertyInfo[] GetIndexers(this Type type, bool inherit, BindingFlags? bindingFlags=default) {
+            bindingFlags ??= defaultLookup;
             var memberName = type.GetAttributes<DefaultMemberAttribute>(inherit).FirstOrDefault()?.MemberName;
             if (memberName == null) { return new PropertyInfo[] { }; }
-            return type.GetProperties().Where(x => x.Name == memberName).ToArray();
+            return type.GetProperties(bindingFlags.Value).Where(x => x.Name == memberName).ToArray();
         }
 
         // https://stackoverflow.com/a/55244482

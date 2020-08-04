@@ -4,12 +4,16 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using System.Security.Cryptography.X509Certificates;
 using System.Text.RegularExpressions;
 using static ZSpitz.Util.LanguageNames;
 
 namespace ZSpitz.Util {
     public static class Functions {
+        private static HashSet<BindingFlags> defaultLookups = new HashSet<BindingFlags> {
+            BindingFlags.Public | BindingFlags.Instance,
+            BindingFlags.Public | BindingFlags.Static
+        };
+
         public static (bool isLiteral, string repr) TryRenderLiteral(object? o, string language) {
             bool rendered = true;
             string? ret = null;
@@ -44,65 +48,21 @@ namespace ZSpitz.Util {
                 }
             } else if (o is Enum e) {
                 ret = $"{e.GetType().Name}.{e}";
-            } else if (o is MemberInfo mi && language.In(CSharp, VisualBasic)) {
-                bool isType;
+            } else if (o is Type t && language.In(CSharp, VisualBasic)) {
                 bool isByRef = false;
-                if (mi is Type t1) {
-                    isType = true;
-                    if (t1.IsByRef) {
-                        isByRef = true;
-                        t1 = t1.GetElementType();
-                    }
-                } else {
-                    isType = false;
-                    t1 = mi.DeclaringType;
+                if (t.IsByRef) {
+                    isByRef = true;
+                    t = t.GetElementType();
                 }
                 if (language == CSharp) {
-                    ret = $"typeof({t1.FriendlyName(CSharp)})";
+                    ret = $"typeof({t.FriendlyName(CSharp)})";
                 } else {
-                    ret = $"GetType({t1.FriendlyName(VisualBasic)})";
+                    ret = $"GetType({t.FriendlyName(VisualBasic)})";
                 }
                 if (isByRef) { ret += ".MakeByRef()"; }
-                if (!isType) {
-                    var methodName = mi switch {
-                        ConstructorInfo _ => "GetConstructor",
-                        EventInfo _ => "GetEvent",
-                        FieldInfo _ => "GetField",
-                        MethodInfo mthdi => "GetMethod",
-                        PropertyInfo _ => "GetProperty",
-                        _ => throw new NotImplementedException()
-                    };
-
-                    var parameters = new List<object>();
-
-                    if (!(mi is ConstructorInfo)) {
-                        parameters.Add(mi.Name);
-                    }
-
-                    var typesParameter = (mi switch {
-                        ConstructorInfo ci => ci.GetParameters(),
-                        MethodInfo mthdi => mthdi.GetParameters(),
-                        _ => null
-                    })?.Select(x => x.ParameterType).ToArray();
-
-                    if (typesParameter?.None() ?? false) {
-                        var otherMemberCount = (mi switch {
-                            ConstructorInfo _ => t1.GetConstructors(),
-                            MethodInfo mthdi => t1.GetMethods().Where(x => x.Name == mi.Name),
-                            _ => Enumerable.Empty<MemberInfo>()
-                        }).Count() - 1;
-
-                        if (otherMemberCount == 0) {
-                            typesParameter = null;
-                        }
-                    }
-
-                    if (typesParameter is { }) {
-                        parameters.Add(typesParameter);
-                    }
-
-                    ret += $".{methodName}({parameters.Joined(", ", x => RenderLiteral(x, language))})";
-                }
+            } else if (o is MemberInfo mi && language.In(CSharp, VisualBasic)) {
+                var (method, args) = mi.GetInputs();
+                ret = $"{RenderLiteral(mi.ReflectedType, language)}.{method.Name}({args.Joined(", ", x => RenderLiteral(x, language))})";                
             } else if (type.IsArray && !type.GetElementType().IsArray && type.GetArrayRank() == 1 && language.In(CSharp, VisualBasic)) {
                 var values = ((Array)o).Cast<object>().Joined(", ", x => RenderLiteral(x, language));
                 values =
