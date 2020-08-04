@@ -1,6 +1,4 @@
-﻿using System;
-using System.Linq;
-using Xunit;
+﻿using Xunit;
 using static System.Reflection.BindingFlags;
 using ZSpitz.Util;
 using System.Reflection;
@@ -8,25 +6,8 @@ using System.Diagnostics;
 
 namespace Tests {
     public class MemberInfoInputs {
-        private static Lazy<TheoryData<MemberInfo>> members = new Lazy<TheoryData<MemberInfo>>(() => 
-            AppDomain.CurrentDomain.GetAssemblies()
-                .OrderBy(x => x.FullName)
-                .SelectMany(x => x.GetTypes()
-                    .Where(x => !(
-                        x.IsAnonymous() ||
-                        (x.FullName?.StartsWith("Microsoft.CSharp.RuntimeBinder") ?? false) ||
-                        (x.FullName?.StartsWith("Microsoft.VisualStudio.TestPlatform") ?? false)
-                    ))
-                )
-                .SelectMany(x => x.GetMembers(Public | NonPublic | Static | Instance))
-                .Where(x => 
-                    !(x is MethodInfo mi && mi.IsSpecialName) &&
-                    !(x is Type)
-                )
-                .ToTheoryData()
-        );
-
-        public static TheoryData<MemberInfo> TestData => members.Value;
+        public static readonly TheoryData<MemberInfo> TestData = 
+            typeof(Foo).GetMembers(Public | NonPublic | Instance | Static).ToTheoryData();
 
         [Theory]
         [MemberData(nameof(TestData))]
