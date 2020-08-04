@@ -1,29 +1,35 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
-    <PropertyGroup>
-        <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
-        <UseWpf>true</UseWpf>
-        <LangVersion>8.0</LangVersion>
-        <Nullable>enable</Nullable>
-        <Authors>Zev Spitz</Authors>
-        <Company />
-        <Product>ZSpitz.Util.Wpf</Product>
-        <Description>Helper extension methods and functions, for WPF projects</Description>
-        <Copyright>Copyright (c) 2020 Zev Spitz</Copyright>
-        <PackageLicenseExpression>MIT</PackageLicenseExpression>
-        <PackageProjectUrl>https://github.com/zspitz/ZSpitz.Util</PackageProjectUrl>
-        <RepositoryUrl>https://github.com/zspitz/ZSpitz.Util.git</RepositoryUrl>
-        <RepositoryType>git</RepositoryType>
-        <PackageTags>.net csharp wpf</PackageTags>
-        <PackageReleaseNotes>Some helper methods and functions for WPF projects</PackageReleaseNotes>
-        <AssemblyName>ZSpitz.Util.Wpf</AssemblyName>
-        <Version>0.1.0</Version>
-        <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    </PropertyGroup>
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
+    <UseWpf>true</UseWpf>
+    <LangVersion>8.0</LangVersion>
+    <Nullable>enable</Nullable>
+    <Authors>Zev Spitz</Authors>
+    <Company />
+    <Product>ZSpitz.Util.Wpf</Product>
+    <Description>Helper extension methods and functions, for WPF projects</Description>
+    <Copyright>Copyright (c) 2020 Zev Spitz</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/zspitz/ZSpitz.Util</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/zspitz/ZSpitz.Util.git</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>.net csharp wpf</PackageTags>
+    <PackageReleaseNotes>Some helper methods and functions for WPF projects</PackageReleaseNotes>
+    <AssemblyName>ZSpitz.Util.Wpf</AssemblyName>
+    <Version>0.1.0</Version>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+  </PropertyGroup>
 
-    <ItemGroup>
-      <PackageReference Include="MultiSelectTreeView" Version="1.0.9" />
-      <PackageReference Include="ZSpitz.Util" Version="0.0.39" />
-    </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MultiSelectTreeView" Version="1.0.9" />
+    <PackageReference Include="ZSpitz.Util" Version="0.0.42" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+  </ItemGroup>
 
 </Project>
