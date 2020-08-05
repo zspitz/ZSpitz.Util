@@ -5,6 +5,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
+using ZSpitz.Util.Extensions;
 using static ZSpitz.Util.LanguageNames;
 
 namespace ZSpitz.Util {
@@ -47,7 +48,13 @@ namespace ZSpitz.Util {
                     ret = $"\"{s}\"";
                 }
             } else if (o is Enum e) {
-                ret = $"{e.GetType().Name}.{e}";
+                var flags = e.GetIndividualFlags().ToArray();
+                var or = language switch {
+                    CSharp => " | ",
+                    VisualBasic => " Or ",
+                    _ => ", "
+                };
+                ret = flags.Joined(or, flag => $"{type.Name}.{flag}");
             } else if (o is Type t && language.In(CSharp, VisualBasic)) {
                 bool isByRef = false;
                 if (t.IsByRef) {
@@ -62,7 +69,7 @@ namespace ZSpitz.Util {
                 if (isByRef) { ret += ".MakeByRef()"; }
             } else if (o is MemberInfo mi && language.In(CSharp, VisualBasic)) {
                 var (method, args) = mi.GetInputs();
-                ret = $"{RenderLiteral(mi.ReflectedType, language)}.{method.Name}({args.Joined(", ", x => RenderLiteral(x, language))})";                
+                ret = $"{RenderLiteral(mi.ReflectedType, language)}.{method.Name}({args.Joined(", ", x => RenderLiteral(x, language))})";
             } else if (type.IsArray && !type.GetElementType().IsArray && type.GetArrayRank() == 1 && language.In(CSharp, VisualBasic)) {
                 var values = ((Array)o).Cast<object>().Joined(", ", x => RenderLiteral(x, language));
                 values =
@@ -76,7 +83,7 @@ namespace ZSpitz.Util {
                     ret = $"{{{values}}}";
                 }
             } else if (type.IsTupleType(out var isTupleType)) {
-                ret = 
+                ret =
                     (!isTupleType ? "Tuple.Create" : "")
                     + "(" + TupleValues(o).Select(x => RenderLiteral(x, language)).Joined(", ") + ")";
             } else if (type.IsNumeric()) {
@@ -273,9 +280,9 @@ namespace ZSpitz.Util {
             !left.Type.IsValueType &&
             !right.Type.IsValueType;
 
-        public static string ResolveLanguage(string language) => 
-            language == VisualBasic ? 
-                language : 
+        public static string ResolveLanguage(string language) =>
+            language == VisualBasic ?
+                language :
                 CSharp;
 
         // TODO consider using Pather for this
