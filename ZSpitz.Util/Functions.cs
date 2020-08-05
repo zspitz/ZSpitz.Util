@@ -48,13 +48,20 @@ namespace ZSpitz.Util {
                     ret = $"\"{s}\"";
                 }
             } else if (o is Enum e) {
-                var flags = e.GetIndividualFlags().ToArray();
-                var or = language switch {
-                    CSharp => " | ",
-                    VisualBasic => " Or ",
-                    _ => ", "
-                };
-                ret = flags.Joined(or, flag => $"{type.Name}.{flag}");
+                if (type.HasAttribute<FlagsAttribute>()) {
+                    var flags = e.GetIndividualFlags().ToArray();
+                    var or = language switch
+                    {
+                        CSharp => " | ",
+                        VisualBasic => " Or ",
+                        _ => ", "
+                    };
+                    ret = flags.Joined(or, flag => $"{type.Name}.{flag}");
+                } else {
+                    // If GetIndividualFlags is used with a non-Flags enum, it returns multiple values.
+                    // TODO this could probably be avoided by sorting the values in descending numeric order, then checking for the highest values first.
+                    ret = $"{type.Name}.{e}";
+                }
             } else if (o is Type t && language.In(CSharp, VisualBasic)) {
                 bool isByRef = false;
                 if (t.IsByRef) {

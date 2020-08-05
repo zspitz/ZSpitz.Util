@@ -5,6 +5,7 @@ using static ZSpitz.Util.Functions;
 using ZSpitz.Util;
 using static ZSpitz.Util.LanguageNames;
 using System.Reflection;
+using System.Linq.Expressions;
 
 namespace Tests {
     [Trait("Type", "Literal rendering")]
@@ -30,6 +31,7 @@ namespace Tests {
                 {"ab\rcd", ("#String", "\"ab\\rcd\"", "\"ab\rcd\"") },
                 {DayOfWeek.Thursday, ("DayOfWeek.Thursday","DayOfWeek.Thursday","DayOfWeek.Thursday") },
                 {BindingFlags.Public | BindingFlags.Static, ("BindingFlags.Static, BindingFlags.Public", "BindingFlags.Static | BindingFlags.Public", "BindingFlags.Static Or BindingFlags.Public") },
+                {ExpressionType.Throw, ("ExpressionType.Throw", "ExpressionType.Throw", "ExpressionType.Throw")},
                 {new object[] {1}, ("#Object[]", "new[] { 1 }", "{ 1 }")},
                 {Tuple.Create(1,"2"), ("Tuple.Create(1, \"2\")", "Tuple.Create(1, \"2\")", "Tuple.Create(1, \"2\")") },
                 {(1,"2"), ("(1, \"2\")", "(1, \"2\")", "(1, \"2\")") },
