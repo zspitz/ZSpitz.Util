@@ -107,7 +107,8 @@ namespace ZSpitz.Util {
         public static string RenderLiteral(object? o, OneOf<string, Language?> languageArg) => TryRenderLiteral(o, languageArg).repr;
 
         /// <summary>Returns a string representation of the value, which may or may not be a valid literal in the language</summary>
-        public static string StringValue(object? o, string language) {
+        public static string StringValue(object? o, OneOf<string, Language?> languageArg) {
+            var language = ResolveLanguage(languageArg);
             var (isLiteral, repr) = TryRenderLiteral(o, language);
             if (!isLiteral) {
                 var hasDeclaredToString = o!.GetType().GetMethods().Any(x => {
@@ -135,10 +136,11 @@ namespace ZSpitz.Util {
 
         // TODO handle more than 8 values
         public static object?[] TupleValues(object tuple) {
-            if (!tuple.GetType().IsTupleType()) { throw new InvalidOperationException(); }
-            var fields = tuple.GetType().GetFields();
-            if (fields.Any()) { return tuple.GetType().GetFields().Select(x => x.GetValue(tuple)).ToArray(); }
-            return tuple.GetType().GetProperties().Select(x => x.GetValue(tuple)).ToArray();
+            var type = tuple.GetType();
+            if (!type.IsTupleType()) { throw new InvalidOperationException(); }
+            var fields = type.GetFields();
+            if (fields.Any()) { return type.GetFields().Select(x => x.GetValue(tuple)).ToArray(); }
+            return type.GetProperties().Select(x => x.GetValue(tuple)).ToArray();
         }
 
         public static bool TryTupleValues(object tuple, [NotNullWhen(true)] out object?[]? values) {
