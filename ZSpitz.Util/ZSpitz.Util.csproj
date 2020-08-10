@@ -16,7 +16,7 @@
     <PackageTags>.net csharp</PackageTags>
     <PackageReleaseNotes>Some helper methods and functions</PackageReleaseNotes>
     <AssemblyName>ZSpitz.Util</AssemblyName>
-    <Version>0.0.0</Version>
+    <Version>0.1.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
 
     <IncludeSymbols>true</IncludeSymbols>
@@ -26,6 +26,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="OneOf" Version="2.1.155" />
   </ItemGroup>
 </Project>

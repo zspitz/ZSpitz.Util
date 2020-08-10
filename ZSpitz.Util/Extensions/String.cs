@@ -3,12 +3,14 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
-using static ZSpitz.Util.LanguageNames;
+using static ZSpitz.Util.Language;
 using System.Diagnostics.CodeAnalysis;
+using OneOf;
+using static ZSpitz.Util.Functions;
 
 namespace ZSpitz.Util {
     public static class StringExtensions {
-        public static bool IsNullOrWhitespace([NotNullWhen(false)]this string? s) => string.IsNullOrWhiteSpace(s);
+        public static bool IsNullOrWhitespace([NotNullWhen(false)] this string? s) => string.IsNullOrWhiteSpace(s);
         public static bool ContainsAny(this string s, params string[] testStrings) => testStrings.Any(x => s.Contains(x));
         public static void AppendTo(this string s, StringBuilder sb) => sb.Append(s);
 
@@ -48,11 +50,11 @@ namespace ZSpitz.Util {
         public static bool HasSpecialCharacters(this string s) =>
             s.IndexOfAny(specialChars) > -1;
 
-        public static string ToVerbatimString(this string s, string language) =>
-            language switch {
+        public static string ToVerbatimString(this string s, OneOf<string, Language?> langArg) => 
+            ResolveLanguage(langArg) switch {
                 CSharp => s.ToCSharpLiteral(),
                 VisualBasic => $"\"{s.Replace("\"", "\"\"")}\"",
-                _ => throw new ArgumentException("Invalid language"),
+                _ => throw new ArgumentException("Invalid language")
             };
 
         public static void AppendLineTo(this string s, StringBuilder sb, int indentationLevel = 0) {

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Xunit;
 using static ZSpitz.Util.Functions;
 using ZSpitz.Util;
-using static ZSpitz.Util.LanguageNames;
+using static ZSpitz.Util.Language;
 using System.Reflection;
 using System.Linq.Expressions;
 
@@ -12,14 +12,14 @@ namespace Tests {
     public class LiteralRendering {
         [Theory]
         [MemberData(nameof(TestData))]
-        public static void TestLiteral(object o, string language, string expected) {
+        public static void TestLiteral(object o, Language? language, string expected) {
             var (actualHasLiteral, actual) = TryRenderLiteral(o, language);
             var expectedHasLiteral = !expected.StartsWith("#") || expected.EndsWith("#") || expected.Contains(':'); // because exceptions are rendered as #Exception:Message
             Assert.Equal(expectedHasLiteral, actualHasLiteral);
             Assert.Equal(expected, actual);
         }
 
-        public static TheoryData<object?, string, string> TestData = IIFE(() => {
+        public static TheoryData<object?, Language?, string> TestData = IIFE(() => {
             var testData = new List<(object?, (string neutral, string csharp, string vb))>() {
                 { null, ("␀", "null", "Nothing") },
                 {5, ("5","5","5") },
@@ -47,8 +47,8 @@ namespace Tests {
                 {typeof(string), ("typeof(string)", "GetType(String)") },
                 {typeof(string).MakeByRefType(), ("typeof(string).MakeByRef()", "GetType(String).MakeByRef()") },
                 {timerType.GetConstructor(new Type[] { })!, ("typeof(Timer).GetConstructor(new Type[] { })", "GetType(Timer).GetConstructor({ })") },
-                {timerType.GetEvent("Elapsed")!, ("typeof(Timer).GetEvent(\"Elapsed\")", "GetType(Timer).GetEvent(\"Elapsed\")")},
-                {typeof(string).GetField("Empty")!, ("typeof(string).GetField(\"Empty\")", "GetType(String).GetField(\"Empty\")") },
+                {timerType.GetEvent("Elapsed"), ("typeof(Timer).GetEvent(\"Elapsed\")", "GetType(Timer).GetEvent(\"Elapsed\")")},
+                {typeof(string).GetField("Empty"), ("typeof(string).GetField(\"Empty\")", "GetType(String).GetField(\"Empty\")") },
                 { GetMethod(() => Console.WriteLine()), ("typeof(Console).GetMethod(\"WriteLine\", new Type[] { })", "GetType(Console).GetMethod(\"WriteLine\", { })") },
                 {GetMember(() => "".Length), ("typeof(string).GetProperty(\"Length\")", "GetType(String).GetProperty(\"Length\")") }
             }.SelectT((o, x) => {
@@ -59,10 +59,10 @@ namespace Tests {
             var dte = new DateTime(1981, 1, 1);
             testData.Add(dte, ("#DateTime", "#DateTime", $"#1981-01-01 00:00:00#"));
 
-            var ret = new TheoryData<object?, string, string>();
+            var ret = new TheoryData<object?, Language?, string>();
             foreach (var (o, expected) in testData) {
                 var (neutral, csharp, vb) = expected;
-                ret.Add(o, "", neutral);
+                ret.Add(o, null, neutral);
                 ret.Add(o, CSharp, csharp);
                 ret.Add(o, VisualBasic, vb);
             }

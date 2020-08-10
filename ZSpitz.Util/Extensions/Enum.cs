@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace ZSpitz.Util.Extensions {
+namespace ZSpitz.Util {
     // https://stackoverflow.com/a/5543006/111794
     internal static class EnumExtensions {
         public static IEnumerable<Enum> GetFlags(this Enum value) =>

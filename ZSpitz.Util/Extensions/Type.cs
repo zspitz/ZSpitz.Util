@@ -1,10 +1,12 @@
-﻿using System;
+﻿using OneOf;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
-using static ZSpitz.Util.LanguageNames;
 using static System.Linq.Enumerable;
+using static ZSpitz.Util.Language;
+using static ZSpitz.Util.Functions;
 
 namespace ZSpitz.Util {
     public static class TypeExtensions {
@@ -83,7 +85,9 @@ namespace ZSpitz.Util {
             {typeof(ushort), "UShort"}
         };
 
-        public static string FriendlyName(this Type type, string language) {
+        public static string FriendlyName(this Type type, OneOf<string, Language?> languageArg) {
+            var language = ResolveLanguage(languageArg);
+
             if (language.NotIn(CSharp, VisualBasic)) { return type.Name; }
 
             if (type.IsClosureClass()) {
@@ -142,9 +146,8 @@ namespace ZSpitz.Util {
                 $"{nongenericName}(Of {parts})";
         }
 
-        public static bool IsTupleType(this Type type) {
-            return type.IsTupleType(out var _);
-        }
+        public static bool IsTupleType(this Type type) =>
+            type.IsTupleType(out var _);
 
         public static bool IsTupleType(this Type type, out bool isValueTuple) {
             isValueTuple = false;
@@ -198,7 +201,7 @@ namespace ZSpitz.Util {
         public static IEnumerable<T> GetAttributes<T>(this Type type, bool inherit) where T : Attribute =>
             type.GetCustomAttributes(typeof(T), inherit).Cast<T>();
 
-        private static BindingFlags defaultLookup = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
+        private static readonly BindingFlags defaultLookup = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
         public static PropertyInfo[] GetIndexers(this Type type, bool inherit, BindingFlags? bindingFlags=default) {
             bindingFlags ??= defaultLookup;
             var memberName = type.GetAttributes<DefaultMemberAttribute>(inherit).FirstOrDefault()?.MemberName;

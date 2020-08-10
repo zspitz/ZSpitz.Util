@@ -1,21 +1,18 @@
-﻿using System;
+﻿using OneOf;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
-using ZSpitz.Util.Extensions;
-using static ZSpitz.Util.LanguageNames;
+using static ZSpitz.Util.Language;
 
 namespace ZSpitz.Util {
     public static class Functions {
-        private static HashSet<BindingFlags> defaultLookups = new HashSet<BindingFlags> {
-            BindingFlags.Public | BindingFlags.Instance,
-            BindingFlags.Public | BindingFlags.Static
-        };
+        public static (bool isLiteral, string repr) TryRenderLiteral(object? o, OneOf<string, Language?> languageArg) {
+            var language = ResolveLanguage(languageArg);
 
-        public static (bool isLiteral, string repr) TryRenderLiteral(object? o, string language) {
             bool rendered = true;
             string? ret = null;
             if (o is null) {
@@ -49,17 +46,18 @@ namespace ZSpitz.Util {
                 }
             } else if (o is Enum e) {
                 if (type.HasAttribute<FlagsAttribute>()) {
-                    var flags = e.GetIndividualFlags().ToArray();
+                    var flagValues = e.GetIndividualFlags().ToArray();
                     var or = language switch
                     {
                         CSharp => " | ",
                         VisualBasic => " Or ",
                         _ => ", "
                     };
-                    ret = flags.Joined(or, flag => $"{type.Name}.{flag}");
+                    ret = flagValues.Joined(or, flagValue => $"{type.Name}.{flagValue}");
                 } else {
                     // If GetIndividualFlags is used with a non-Flags enum, it returns multiple values.
                     // TODO this could probably be avoided by sorting the values in descending numeric order, then checking for the highest values first.
+                    // At the very least, GetIndividualFlags should throw an Exception if used with a non-flags enum
                     ret = $"{type.Name}.{e}";
                 }
             } else if (o is Type t && language.In(CSharp, VisualBasic)) {
@@ -106,7 +104,7 @@ namespace ZSpitz.Util {
             return (rendered, ret);
         }
 
-        public static string RenderLiteral(object? o, string language) => TryRenderLiteral(o, language).repr;
+        public static string RenderLiteral(object? o, OneOf<string, Language?> languageArg) => TryRenderLiteral(o, languageArg).repr;
 
         /// <summary>Returns a string representation of the value, which may or may not be a valid literal in the language</summary>
         public static string StringValue(object? o, string language) {
@@ -287,10 +285,14 @@ namespace ZSpitz.Util {
             !left.Type.IsValueType &&
             !right.Type.IsValueType;
 
-        public static string ResolveLanguage(string language) =>
-            language == VisualBasic ?
-                language :
-                CSharp;
+        public static Language? ResolveLanguage(OneOf<string, Language?> languageArg) {
+            if (languageArg.IsT1) { return languageArg.AsT1; }
+            return languageArg.AsT0 switch {
+                LanguageNames.CSharp => CSharp,
+                LanguageNames.VisualBasic => VisualBasic,
+                _ => null,
+            };
+        }
 
         // TODO consider using Pather for this
         static readonly Regex re = new Regex(@"(?:^|\.)(\w+)(?:\[(\d+)\])?");
