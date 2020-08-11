@@ -51,7 +51,7 @@ namespace ZSpitz.Util {
             s.IndexOfAny(specialChars) > -1;
 
         public static string ToVerbatimString(this string s, OneOf<string, Language?> langArg) => 
-            ResolveLanguage(langArg) switch {
+            langArg.ResolveLanguage() switch {
                 CSharp => s.ToCSharpLiteral(),
                 VisualBasic => $"\"{s.Replace("\"", "\"\"")}\"",
                 _ => throw new ArgumentException("Invalid language")

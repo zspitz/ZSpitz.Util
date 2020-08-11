@@ -11,7 +11,7 @@ using static ZSpitz.Util.Language;
 namespace ZSpitz.Util {
     public static class Functions {
         public static (bool isLiteral, string repr) TryRenderLiteral(object? o, OneOf<string, Language?> languageArg) {
-            var language = ResolveLanguage(languageArg);
+            var language = languageArg.ResolveLanguage();
 
             bool rendered = true;
             string? ret = null;
@@ -108,7 +108,7 @@ namespace ZSpitz.Util {
 
         /// <summary>Returns a string representation of the value, which may or may not be a valid literal in the language</summary>
         public static string StringValue(object? o, OneOf<string, Language?> languageArg) {
-            var language = ResolveLanguage(languageArg);
+            var language = languageArg.ResolveLanguage();
             var (isLiteral, repr) = TryRenderLiteral(o, language);
             if (!isLiteral) {
                 var hasDeclaredToString = o!.GetType().GetMethods().Any(x => {
@@ -286,15 +286,6 @@ namespace ZSpitz.Util {
             !hasMethod &&
             !left.Type.IsValueType &&
             !right.Type.IsValueType;
-
-        public static Language? ResolveLanguage(OneOf<string, Language?> languageArg) {
-            if (languageArg.IsT1) { return languageArg.AsT1; }
-            return languageArg.AsT0 switch {
-                LanguageNames.CSharp => CSharp,
-                LanguageNames.VisualBasic => VisualBasic,
-                _ => null,
-            };
-        }
 
         // TODO consider using Pather for this
         static readonly Regex re = new Regex(@"(?:^|\.)(\w+)(?:\[(\d+)\])?");

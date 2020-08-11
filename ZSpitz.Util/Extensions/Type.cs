@@ -86,7 +86,7 @@ namespace ZSpitz.Util {
         };
 
         public static string FriendlyName(this Type type, OneOf<string, Language?> languageArg) {
-            var language = ResolveLanguage(languageArg);
+            var language = languageArg.ResolveLanguage();
 
             if (language.NotIn(CSharp, VisualBasic)) { return type.Name; }
 
