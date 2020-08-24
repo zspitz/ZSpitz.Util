@@ -10,5 +10,6 @@ namespace ZSpitz.Util {
         public static IEnumerable<TKey> Keys<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> src) => src.Select(x => x.Key);
         public static ILookup<TKey, TValue> ToLookup<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> src) => src.ToLookup(kvp => kvp.Key, kvp => kvp.Value);
         public static IEnumerable<KeyValuePair<TKey, TValue>> WhereKVP<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> src, Func<TKey, TValue, bool> predicate) => src.Where(kvp => predicate(kvp.Key, kvp.Value));
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> src) => src.ToDictionary(x => x.Key, x => x.Value);
     }
 }
