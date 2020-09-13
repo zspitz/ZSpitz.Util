@@ -6,7 +6,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using static System.Linq.Enumerable;
 using static ZSpitz.Util.Language;
-using static ZSpitz.Util.Functions;
 
 namespace ZSpitz.Util {
     public static class TypeExtensions {
@@ -133,17 +132,26 @@ namespace ZSpitz.Util {
                 return type.UnderlyingIfNullable().FriendlyName(language) + "?";
             }
 
-            if (type.IsGenericParameter) { return type.Name; }
+            if (type.IsGenericParameter) {
+                return type.Name;
+            }
 
+            var args = type.GetGenericArguments();
             var parts = type.GetGenericArguments().Joined(", ", t => t.FriendlyName(language));
             var backtickIndex = type.Name.IndexOf('`');
-            var nongenericName = 
-                type.IsVBAnonymousDelegate() ? 
-                    "VB$AnonymousDelegate" :
-                    type.Name.Substring(0, backtickIndex);
+            var nongenericName = type.NonGenericName();
             return language == CSharp ?
                 $"{nongenericName}<{parts}>" :
                 $"{nongenericName}(Of {parts})";
+        }
+
+        public static string NonGenericName(this Type t) {
+            var backtickIndex = t.Name.IndexOf('`');
+            var nongenericName =
+                t.IsVBAnonymousDelegate() ?
+                    "VB$AnonymousDelegate" :
+                    t.Name.Substring(0, backtickIndex);
+            return nongenericName;
         }
 
         public static bool IsTupleType(this Type type) =>

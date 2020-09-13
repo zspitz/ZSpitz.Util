@@ -61,16 +61,29 @@ namespace ZSpitz.Util {
                     ret = $"{type.Name}.{e}";
                 }
             } else if (o is Type t && language.In(CSharp, VisualBasic)) {
+                var typeOp = language == CSharp ? "typeof" : "GetType";
+
+                // I'm not entirely sure a generic type definition type can have IsByRef == true
                 bool isByRef = false;
                 if (t.IsByRef) {
                     isByRef = true;
                     t = t.GetElementType();
                 }
-                if (language == CSharp) {
-                    ret = $"typeof({t.FriendlyName(CSharp)})";
+
+                if (t.IsGenericParameter) {
+                    ret = $"Type.MakeGenericMethodParameter({t.GenericParameterPosition})";
+                } else if (!t.ContainsGenericParameters) {
+                    ret = $"{typeOp}({t.FriendlyName(language)})";
+                } else if (t.IsGenericTypeDefinition) {
+                    if (language == CSharp) {
+                        ret = $"{typeOp}({t.NonGenericName()}<{t.GetGenericArguments().Joined(",", _ => "")}>)";
+                    } else {
+                        ret = $"{typeOp}({t.NonGenericName()}(Of {t.GetGenericArguments().Joined(",", _ => "")}))";
+                    }
                 } else {
-                    ret = $"GetType({t.FriendlyName(VisualBasic)})";
+                    ret = $"{RenderLiteral(t.GetGenericTypeDefinition(), language)}.MakeGenericType({t.GenericTypeArguments.Joined(", ", x => RenderLiteral(x, language))})";
                 }
+
                 if (isByRef) { ret += ".MakeByRef()"; }
             } else if (o is MemberInfo mi && language.In(CSharp, VisualBasic)) {
                 var (method, args) = mi.GetInputs();

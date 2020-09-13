@@ -13,7 +13,7 @@ namespace ZSpitz.Util {
             bool isStatic = false;
             bool isPublic = false;
             methods.Where(x => x is { }).ForEach((x, index) => {
-                if (index ==0) { isStatic = x.IsStatic; }
+                if (index == 0) { isStatic = x.IsStatic; }
                 if (x.IsPublic) {
                     isPublic = true;
                     return;
@@ -63,22 +63,25 @@ namespace ZSpitz.Util {
                     _ => throw new NotImplementedException()
                 }).Select(x => x.ParameterType).ToArray();
 
-                var otherMemberCount = (mi switch
-                {
+                var membersByName = (mi switch {
                     ConstructorInfo _ => reflectedType.GetConstructors(flags),
                     MethodInfo mthdi => reflectedType.GetMethods(flags).Where(x => x.Name == mi.Name),
                     PropertyInfo _ => reflectedType.GetIndexers(true, flags),
                     _ => Enumerable.Empty<MemberInfo>()
-                }).Count() - 1;
+                }).ToList();
+
+                var otherMemberCount = membersByName.Count - 1;
 
                 if (mi is PropertyInfo) {
                     if (otherMemberCount > 0 && flags.NotIn(defaultLookups)) {
                         // string, BindingFlags, Binder, Type, Type[], ParameterModifier[]
-                        parameters.Add(typeof(BindingFlags), flags);
-                        parameters.Add(typeof(Binder), null);
-                        parameters.Add(typeof(Type), null);
-                        parameters.Add(typeof(Type[]), typesParameter);
-                        parameters.Add(typeof(ParameterModifier[]), null);
+                        parameters.AddRange(
+                            (typeof(BindingFlags), flags),
+                            (typeof(Binder), null),
+                            (typeof(Type), null),
+                            (typeof(Type[]), typesParameter),
+                            (typeof(ParameterModifier[]), null)
+                        );
                     } else {
                         // string
                         // string, Type[],
@@ -89,16 +92,32 @@ namespace ZSpitz.Util {
                 } else if (mi is ConstructorInfo) {
                     if (flags.NotIn(defaultLookups)) {
                         // BindingFlags, Binder, Type[], ParameterModifier[]
-                        parameters.Add(typeof(BindingFlags), flags);
-                        parameters.Add(typeof(Binder), null);
-                        parameters.Add(typeof(Type[]), typesParameter);
-                        parameters.Add(typeof(ParameterModifier[]), null);
+                        parameters.AddRange(
+                            (typeof(BindingFlags), flags),
+                            (typeof(Binder), null),
+                            (typeof(Type[]), typesParameter),
+                            (typeof(ParameterModifier[]), null)
+                        );
                     } else {
                         // Type[]
                         parameters.Add(typeof(Type[]), typesParameter);
                     }
                 } else if (mi is MethodInfo mthdi) {
-                    if (otherMemberCount > 0 && flags.NotIn(defaultLookups)) {
+
+                    var arity = mthdi.GetGenericArguments().Length;
+                    var methodsByName = membersByName.Cast<MethodInfo>().Select(x => new {
+                        arity = x.GetGenericArguments().Length,
+                        x
+                    }).ToList();
+                    if (methodsByName.None(x => x.arity != arity)) { arity = 0; } // arity doesn't help to differentiate between methods
+                    if (arity > 0) { parameters.Add((typeof(int), arity)); }
+
+                    if (
+                        flags.NotIn(defaultLookups) &&
+                        (otherMemberCount > 0 || arity > 0)
+                    ) {
+                        // we can't use the simpler overloads
+                        // string, int, BindingFlags, Binder, Type[], ParameterModifier[] 
                         // string, BindingFlags, Binder, Type[], ParameterModifier[]
                         parameters.AddRange(
                             (typeof(BindingFlags), flags),
@@ -109,6 +128,7 @@ namespace ZSpitz.Util {
                     } else {
                         // string
                         // string, Type[]
+                        // string, int, Type[]
                         // string, BindingFlags
                         if (otherMemberCount > 0) { parameters.Add(typeof(Type[]), typesParameter); }
                         if (flags.NotIn(defaultLookups)) { parameters.Add(typeof(BindingFlags), flags); }
@@ -118,8 +138,7 @@ namespace ZSpitz.Util {
                 }
             }
 
-            var methodName = mi switch
-            {
+            var methodName = mi switch {
                 FieldInfo _ => "GetField",
                 EventInfo _ => "GetEvent",
                 PropertyInfo _ => "GetProperty",
@@ -130,35 +149,6 @@ namespace ZSpitz.Util {
 
             var method = reflectedType.GetType().GetMethod(methodName, parameters.Select(x => x.type).ToArray());
             return (method, parameters.Select(x => x.value).ToArray());
-        }
-
-        public static (MethodInfo method, object?[] args) GetInputs(this MethodInfo mi) {
-            var reflectedType = mi.ReflectedType;
-            var parameters = new List<(Type type, object? value)> {
-                (typeof(string), mi.Name)
-            };
-            var flags = mi.getBindingFlags();
-            var typesParameter = mi.GetParameters().Select(x => x.ParameterType).ToArray();
-            var otherMemberCount = reflectedType.GetMethods(flags).Where(x => x.Name == mi.Name).Count() - 1;
-
-            if (otherMemberCount > 0 && flags.NotIn(defaultLookups)) {
-                // string, BindingFlags, Binder, Type[], ParameterModifier[]
-                parameters.AddRange(
-                    (typeof(BindingFlags), flags),
-                    (typeof(Binder), null),
-                    (typeof(Type[]), typesParameter),
-                    (typeof(ParameterModifier[]), null)
-                );
-            } else {
-                // string
-                // string, Type[]
-                // string, BindingFlags
-                if (otherMemberCount > 0) { parameters.Add(typeof(Type[]), typesParameter); }
-                if (flags.NotIn(defaultLookups)) { parameters.Add(typeof(BindingFlags), flags); }
-            }
-
-            var getMethod = reflectedType.GetType().GetMethod("GetMethod", parameters.Select(x => x.type).ToArray());
-            return (getMethod, parameters.Select(x => x.value).ToArray());
         }
     }
 }

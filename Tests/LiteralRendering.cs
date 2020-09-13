@@ -6,6 +6,7 @@ using ZSpitz.Util;
 using static ZSpitz.Util.Language;
 using System.Reflection;
 using System.Linq.Expressions;
+using System.Linq;
 
 namespace Tests {
     [Trait("Type", "Literal rendering")]
@@ -50,7 +51,70 @@ namespace Tests {
                 {timerType.GetEvent("Elapsed"), ("typeof(Timer).GetEvent(\"Elapsed\")", "GetType(Timer).GetEvent(\"Elapsed\")")},
                 {typeof(string).GetField("Empty"), ("typeof(string).GetField(\"Empty\")", "GetType(String).GetField(\"Empty\")") },
                 { GetMethod(() => Console.WriteLine()), ("typeof(Console).GetMethod(\"WriteLine\", new Type[] { })", "GetType(Console).GetMethod(\"WriteLine\", { })") },
-                {GetMember(() => "".Length), ("typeof(string).GetProperty(\"Length\")", "GetType(String).GetProperty(\"Length\")") }
+                {GetMember(() => "".Length), ("typeof(string).GetProperty(\"Length\")", "GetType(String).GetProperty(\"Length\")") },
+
+                // generic type parameter
+                {
+                    Type.MakeGenericMethodParameter(5), ("Type.MakeGenericMethodParameter(5)","Type.MakeGenericMethodParameter(5)")
+                },
+
+                // generic type definition
+                {
+                    typeof(Dictionary<,>), ("typeof(Dictionary<,>)", "GetType(Dictionary(Of ,))")
+                },
+
+                // constructed generic type
+                {
+                    typeof(Dictionary<string, int>), ("typeof(Dictionary<string, int>)", "GetType(Dictionary(Of String, Integer))")
+                },
+
+                // nested constructed generic type
+                {
+                    typeof(List<Dictionary<string, int>>), ("typeof(List<Dictionary<string, int>>)", "GetType(List(Of Dictionary(Of String, Integer)))")
+                },
+
+                // partial generic type
+                {
+                    typeof(Dictionary<,>).MakeGenericType(typeof(string), Type.MakeGenericMethodParameter(1)),
+                    (
+                        "typeof(Dictionary<,>).MakeGenericType(typeof(string), Type.MakeGenericMethodParameter(1))",
+                        "GetType(Dictionary(Of ,)).MakeGenericType(GetType(String), Type.MakeGenericMethodParameter(1))"
+                    )
+                },
+
+                // nested partial generic type
+                {
+                    typeof(List<>).MakeGenericType(
+                        typeof(Dictionary<,>).MakeGenericType(                        
+                            typeof(string), Type.MakeGenericMethodParameter(1)
+                        )
+                    ),
+                    (
+                        "typeof(List<>).MakeGenericType(typeof(Dictionary<,>).MakeGenericType(typeof(string), Type.MakeGenericMethodParameter(1)))",
+                        "GetType(List(Of )).MakeGenericType(GetType(Dictionary(Of ,)).MakeGenericType(GetType(String), Type.MakeGenericMethodParameter(1)))"
+                    )
+                },
+
+                // MethodInfo with generic parameter
+                {
+                    new Func<MethodInfo>(() => {
+                        var p0 = Type.MakeGenericMethodParameter(0);
+                        return typeof(Enumerable).GetMethod("Contains", new[] {
+                            typeof(IEnumerable<>).MakeGenericType(p0),
+                            p0
+                        })!;
+                    })(),
+                    (
+                        @"typeof(Enumerable).GetMethod(""Contains"", new[] {
+typeof(IEnumerable<>).MakeGenericType(Type.MakeGenericMethodParameter(0)),
+Type.MakeGenericMethodParameter(0)
+})".Replace(Environment.NewLine," "),
+                        @"GetType(Enumerable).GetMethod(""Contains"", {
+GetType(IEnumerable(Of )).MakeGenericType(Type.MakeGenericMethodParameter(0)),
+Type.MakeGenericMethodParameter(0)
+})".Replace(Environment.NewLine," ")
+                    )
+                }
             }.SelectT((o, x) => {
                 var (csharp, vb) = x;
                 return (o, ($"#{o!.GetType().Name}", csharp, vb));
