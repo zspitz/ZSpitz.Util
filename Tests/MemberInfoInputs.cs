@@ -25,9 +25,11 @@ namespace Tests {
         );
 
         public static TheoryData<MemberInfo> TestData => members.Value;
+        public static TheoryData<MethodInfo> HorrorTestData => typeof(Horror).GetMethods().ToTheoryData();
 
         [Theory]
-        [MemberData(nameof(TestData))]
+        //[MemberData(nameof(TestData))]
+        [MemberData(nameof(HorrorTestData))]
         public void TestMemberInputs(MemberInfo mi) {
             var (getMethod, args) = mi.GetInputs();
             var invokeResult = getMethod.Invoke(mi.DeclaringType, args) as MemberInfo;

@@ -103,14 +103,14 @@ namespace ZSpitz.Util {
                         parameters.Add(typeof(Type[]), typesParameter);
                     }
                 } else if (mi is MethodInfo mthdi) {
-
                     var arity = mthdi.GetGenericArguments().Length;
                     var methodsByName = membersByName.Cast<MethodInfo>().Select(x => new {
                         arity = x.GetGenericArguments().Length,
                         x
                     }).ToList();
-                    if (methodsByName.None(x => x.arity != arity)) { arity = 0; } // arity doesn't help to differentiate between methods
-                    if (arity > 0) { parameters.Add((typeof(int), arity)); }
+                    if (methodsByName.Any(x => x.arity != arity)) {
+                        parameters.Add((typeof(int), arity));
+                    }
 
                     if (
                         flags.NotIn(defaultLookups) &&
