@@ -114,7 +114,7 @@ namespace ZSpitz.Util {
 
                     if (
                         flags.NotIn(defaultLookups) &&
-                        (otherMemberCount > 0 || arity > 0)
+                        (otherMemberCount > 0 || arity > -1)
                     ) {
                         // we can't use the simpler overloads
                         // string, int, BindingFlags, Binder, Type[], ParameterModifier[] 

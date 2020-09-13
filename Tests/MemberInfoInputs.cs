@@ -20,16 +20,20 @@ namespace Tests {
                     !(x is MethodInfo mi && mi.IsSpecialName) &&
                     !(x is Type)
                 )
-                .Take(10000)
+                .Take(1000)
                 .ToTheoryData()
         );
 
         public static TheoryData<MemberInfo> TestData => members.Value;
         public static TheoryData<MethodInfo> HorrorTestData => typeof(Horror).GetMethods().ToTheoryData();
+        public static TheoryData<MethodInfo> SpecialTestsData => new TheoryData<MethodInfo>() {
+            typeof(string).GetMethod("Concat", new [] { typeof(string), typeof(string)})!
+        };
 
         [Theory]
         [MemberData(nameof(TestData))]
         [MemberData(nameof(HorrorTestData))]
+        [MemberData(nameof(SpecialTestsData))]
         public void TestMemberInputs(MemberInfo mi) {
             var (getMethod, args) = mi.GetInputs();
             var invokeResult = getMethod.Invoke(mi.ReflectedType, args) as MemberInfo;
