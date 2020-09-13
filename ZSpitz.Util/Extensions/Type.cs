@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using System.Security.Cryptography.X509Certificates;
 using static System.Linq.Enumerable;
 using static ZSpitz.Util.Language;
 
@@ -268,5 +269,13 @@ namespace ZSpitz.Util {
                 return sourceType;
             }
         }
+
+        public static bool ContainsType(this Type t, Type value) {
+            if (t == value) { return true; }
+            if (!t.IsGenericType || t.IsGenericTypeDefinition) { return false; }
+            return 
+                t.GetGenericTypeDefinition() == value ||
+                t.GetGenericArguments().Any(x => x.ContainsType(value));
+        } 
     }
 }
