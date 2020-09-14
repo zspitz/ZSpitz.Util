@@ -87,7 +87,8 @@ namespace ZSpitz.Util {
                 if (isByRef) { ret += ".MakeByRef()"; }
             } else if (o is MemberInfo mi && language.In(CSharp, VisualBasic)) {
                 var (method, args) = mi.GetInputs();
-                ret = $"{RenderLiteral(mi.ReflectedType, language)}.{method.Name}({args.Joined(", ", x => RenderLiteral(x, language))})";
+                var name = method.Match(mi => mi.Name, s => s);
+                ret = $"{RenderLiteral(mi.ReflectedType, language)}.{name}({args.Joined(", ", x => RenderLiteral(x, language))})";
             } else if (type.IsArray && !type.GetElementType().IsArray && type.GetArrayRank() == 1 && language.In(CSharp, VisualBasic)) {
                 var values = ((Array)o).Cast<object>().Joined(", ", x => RenderLiteral(x, language));
                 values =

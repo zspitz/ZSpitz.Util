@@ -53,11 +53,6 @@ namespace Tests {
                 { GetMethod(() => Console.WriteLine()), ("typeof(Console).GetMethod(\"WriteLine\", new Type[] { })", "GetType(Console).GetMethod(\"WriteLine\", { })") },
                 {GetMember(() => "".Length), ("typeof(string).GetProperty(\"Length\")", "GetType(String).GetProperty(\"Length\")") },
 
-                // generic type parameter
-                {
-                    Type.MakeGenericMethodParameter(5), ("Type.MakeGenericMethodParameter(5)","Type.MakeGenericMethodParameter(5)")
-                },
-
                 // generic type definition
                 {
                     typeof(Dictionary<,>), ("typeof(Dictionary<,>)", "GetType(Dictionary(Of ,))")
@@ -71,6 +66,14 @@ namespace Tests {
                 // nested constructed generic type
                 {
                     typeof(List<Dictionary<string, int>>), ("typeof(List<Dictionary<string, int>>)", "GetType(List(Of Dictionary(Of String, Integer)))")
+                }
+
+#if NETCOREAPP3_1                
+                ,
+
+                // generic type parameter
+                {
+                    Type.MakeGenericMethodParameter(5), ("Type.MakeGenericMethodParameter(5)","Type.MakeGenericMethodParameter(5)")
                 },
 
                 // partial generic type
@@ -115,6 +118,7 @@ Type.MakeGenericMethodParameter(0)
 })".Replace(Environment.NewLine," ")
                     )
                 }
+#endif
             }.SelectT((o, x) => {
                 var (csharp, vb) = x;
                 return (o, ($"#{o!.GetType().Name}", csharp, vb));

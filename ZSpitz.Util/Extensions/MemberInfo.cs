@@ -1,4 +1,5 @@
-﻿using System;
+﻿using OneOf;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -42,7 +43,8 @@ namespace ZSpitz.Util {
             BindingFlags.Public | BindingFlags.Static
         };
 
-        public static (MethodInfo method, object?[] args) GetInputs(this MemberInfo mi) {
+        // .NET Framework is missing some of the GetMethod/GetConstructor overloads
+        internal static (OneOf<MethodInfo, string> method, object?[] args) GetInputs(this MemberInfo mi) {
             var reflectedType = mi.ReflectedType;
             var parameters = new List<(Type type, object? value)>();
             if (!(mi is ConstructorInfo)) {
@@ -108,15 +110,19 @@ namespace ZSpitz.Util {
                         arity = x.GetGenericArguments().Length,
                         x
                     }).ToList();
+
                     if (methodsByName.Any(x => x.arity != arity)) {
                         parameters.Add((typeof(int), arity));
+                    } else {
+                        arity = -1;
                     }
 
                     if (
                         flags.NotIn(defaultLookups) &&
                         (otherMemberCount > 0 || arity > -1)
                     ) {
-                        // we can't use the simpler overloads
+                        // we need binding flags, and either the type array or the arity
+                        // we therefore can't use the simpler overloads
                         // string, int, BindingFlags, Binder, Type[], ParameterModifier[] 
                         // string, BindingFlags, Binder, Type[], ParameterModifier[]
                         parameters.AddRange(
@@ -125,10 +131,12 @@ namespace ZSpitz.Util {
                             (typeof(Type[]), typesParameter),
                             (typeof(ParameterModifier[]), null)
                         );
+                    } else if (arity > -1) {
+                        // string, int, Type[]
+                        parameters.Add(typeof(Type[]), typesParameter);
                     } else {
                         // string
                         // string, Type[]
-                        // string, int, Type[]
                         // string, BindingFlags
                         if (otherMemberCount > 0) { parameters.Add(typeof(Type[]), typesParameter); }
                         if (flags.NotIn(defaultLookups)) { parameters.Add(typeof(BindingFlags), flags); }
@@ -148,7 +156,11 @@ namespace ZSpitz.Util {
             };
 
             var method = reflectedType.GetType().GetMethod(methodName, parameters.Select(x => x.type).ToArray());
-            return (method, parameters.Select(x => x.value).ToArray());
+            var values = parameters.Select(x => x.value).ToArray();
+            if (method is { }) {
+                return (method, values);
+            }
+            return (methodName, values);
         }
     }
 }
