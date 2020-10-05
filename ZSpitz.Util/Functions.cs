@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using static ZSpitz.Util.Language;
+using static System.Globalization.CultureInfo;
 
 namespace ZSpitz.Util {
     public static class Functions {
@@ -106,7 +107,7 @@ namespace ZSpitz.Util {
                     (!isTupleType ? "Tuple.Create" : "")
                     + "(" + TupleValues(o).Select(x => RenderLiteral(x, language)).Joined(", ") + ")";
             } else if (type.IsNumeric()) {
-                ret = o.ToString();
+                ret = FormattableString.Invariant($"{o}");
             } else if (o is Exception ex) {
                 ret = $"#{ex.GetType().FriendlyName(language)}:{RenderLiteral(ex.Message, language)}";
             }
