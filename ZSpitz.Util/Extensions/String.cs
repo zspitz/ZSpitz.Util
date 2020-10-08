@@ -15,7 +15,7 @@ namespace ZSpitz.Util {
         public static bool ContainsWhitespace(this string s) => s.Any(c => char.IsWhiteSpace(c));
 
         private static readonly Regex whitespace = new Regex(@"\s+");
-        public static string ReplaceWhitespace(this string s, string replacement = "") => whitespace.Replace(s, "");
+        public static string ReplaceWhitespace(this string s, string replacement = "") => whitespace.Replace(s, replacement);
         public static bool ContainsAny(this string s, params string[] testStrings) => testStrings.Any(x => s.Contains(x));
         public static void AppendTo(this string s, StringBuilder sb) => sb.Append(s);
 
