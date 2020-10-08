@@ -6,12 +6,12 @@ using System.Text;
 using static ZSpitz.Util.Language;
 using System.Diagnostics.CodeAnalysis;
 using OneOf;
-using static ZSpitz.Util.Functions;
 
 namespace ZSpitz.Util {
     public static class StringExtensions {
         public static bool IsNullOrWhitespace([NotNullWhen(false)] this string? s) => string.IsNullOrWhiteSpace(s);
         public static bool IsNullOrEmpty([NotNullWhen(false)] this string? s) => string.IsNullOrEmpty(s);
+        public static bool ContainsWhitespace(this string s) => s.Any(c => char.IsWhiteSpace(c));
         public static bool ContainsAny(this string s, params string[] testStrings) => testStrings.Any(x => s.Contains(x));
         public static void AppendTo(this string s, StringBuilder sb) => sb.Append(s);
 
