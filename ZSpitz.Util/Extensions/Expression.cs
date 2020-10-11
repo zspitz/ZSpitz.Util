@@ -35,7 +35,7 @@ namespace ZSpitz.Util {
         public static bool IsClosedVariable(this Expression expr) =>
             expr is MemberExpression mexpr && (mexpr.Expression?.Type.IsClosureClass() ?? false);
 
-        public static string Name(this Expression expr, Language language = CSharp) {
+        public static string? Name(this Expression expr, Language language = CSharp) {
             string qualifiedName(Expression instance, MemberInfo mi) => 
                 (instance is null ? $"{mi.DeclaringType.FriendlyName(language)}." : "") + mi.Name;
 

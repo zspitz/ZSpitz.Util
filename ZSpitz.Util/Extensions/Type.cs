@@ -33,6 +33,13 @@ namespace ZSpitz.Util {
 
         public static bool IsNumeric(this Type type) => type.UnderlyingIfNullable().In(numericTypes);
 
+        // TODO implement some sort of caching here?
+        private static T ReadStaticField<T>(string name) => 
+            (T)(typeof(T).GetField(name, BindingFlags.Public | BindingFlags.Static)?.GetValue(null) ?? 
+                throw new InvalidOperationException($"Type '{typeof(T)}' doesn't have a '{name}' field"));
+        public static T MinValue<T>() => ReadStaticField<T>("MinValue");
+        public static T MaxValue<T>() => ReadStaticField<T>("MaxValue");
+
         public static bool InheritsFromOrImplements<T>(this Type type) => typeof(T).IsAssignableFrom(type);
 
         public static bool InheritsFromOrImplementsAny(this Type type, IEnumerable<Type> types) => types.Any(t => t.IsAssignableFrom(type));
