@@ -25,7 +25,7 @@ namespace ZSpitz.Util {
         }
 
         public static Expression SansConvert(this Expression expr) =>
-            expr is UnaryExpression uexpr && uexpr.NodeType == ExpressionType.Convert ?
+            expr is UnaryExpression uexpr && expr.NodeType.In(ExpressionType.Convert, ExpressionType.ConvertChecked, ExpressionType.Unbox) ?
                 uexpr.Operand :
                 expr;
 
