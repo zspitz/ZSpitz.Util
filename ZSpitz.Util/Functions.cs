@@ -107,7 +107,11 @@ namespace ZSpitz.Util {
                     (!isTupleType ? "Tuple.Create" : "")
                     + "(" + TupleValues(o).Select(x => RenderLiteral(x, language)).Joined(", ") + ")";
             } else if (type.IsNumeric()) {
+#if NET452
+                ret = o.ToString();
+#else
                 ret = FormattableString.Invariant($"{o}");
+#endif
             } else if (o is Exception ex) {
                 ret = $"#{ex.GetType().FriendlyName(language)}:{RenderLiteral(ex.Message, language)}";
             }
