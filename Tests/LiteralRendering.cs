@@ -49,7 +49,7 @@ namespace Tests {
             // populate with reflection test data
             new List<(object?, (string csharp, string vb))>() {
                 {typeof(string), ("typeof(string)", "GetType(String)") },
-                {typeof(string).MakeByRefType(), ("typeof(string).MakeByRef()", "GetType(String).MakeByRef()") },
+                {typeof(string).MakeByRefType(), ("typeof(string).MakeByRefType()", "GetType(String).MakeByRefType()") },
                 {timerType.GetConstructor(new Type[] { })!, ("typeof(Timer).GetConstructor(new Type[] { })", "GetType(Timer).GetConstructor({ })") },
                 {timerType.GetEvent("Elapsed"), ("typeof(Timer).GetEvent(\"Elapsed\")", "GetType(Timer).GetEvent(\"Elapsed\")")},
                 {typeof(string).GetField("Empty"), ("typeof(string).GetField(\"Empty\")", "GetType(String).GetField(\"Empty\")") },

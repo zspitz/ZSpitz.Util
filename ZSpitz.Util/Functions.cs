@@ -85,7 +85,7 @@ namespace ZSpitz.Util {
                     ret = $"{RenderLiteral(t.GetGenericTypeDefinition(), language)}.MakeGenericType({t.GenericTypeArguments.Joined(", ", x => RenderLiteral(x, language))})";
                 }
 
-                if (isByRef) { ret += ".MakeByRef()"; }
+                if (isByRef) { ret += ".MakeByRefType()"; }
             } else if (o is MemberInfo mi && language.In(CSharp, VisualBasic)) {
                 var (method, args) = mi.GetInputs();
                 var name = method.Match(mi => mi.Name, s => s);
