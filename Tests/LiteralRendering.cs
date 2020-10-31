@@ -45,6 +45,8 @@ namespace Tests {
             };
 
             var timerType = typeof(System.Timers.Timer);
+            Expression<Func<Type>> expr = () => timerType;
+            var closureType = ((MemberExpression)expr.Body).Expression.Type;
 
             // populate with reflection test data
             new List<(object?, (string csharp, string vb))>() {
@@ -55,6 +57,8 @@ namespace Tests {
                 {typeof(string).GetField("Empty"), ("typeof(string).GetField(\"Empty\")", "GetType(String).GetField(\"Empty\")") },
                 { GetMethod(() => Console.WriteLine()), ("typeof(Console).GetMethod(\"WriteLine\", new Type[] { })", "GetType(Console).GetMethod(\"WriteLine\", { })") },
                 {GetMember(() => "".Length), ("typeof(string).GetProperty(\"Length\")", "GetType(String).GetProperty(\"Length\")") },
+                {(new { Bar = "bar", Baz = "baz" }).GetType(), ("typeof(<anonymous({ string Bar, string Baz })>)", "GetType(<Anonymous({ .Bar As String, .Baz As String })>)") },
+                {closureType, ("typeof(<closure>)","GetType(<Closure>)") },
 
                 // generic type definition
                 {

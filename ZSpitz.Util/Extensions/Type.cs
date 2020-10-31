@@ -106,7 +106,7 @@ namespace ZSpitz.Util {
                     var typename = p.PropertyType.FriendlyName(language);
                     return language == CSharp ?
                         $"{typename} {name}" :
-                        $"{name} As {typename}"; // language == VisualBasic 
+                        $".{name} As {typename}"; // language == VisualBasic 
                 }) + " }";
             }
 

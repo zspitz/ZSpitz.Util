@@ -74,7 +74,11 @@ namespace ZSpitz.Util {
                 if (t.IsGenericParameter) {
                     ret = $"Type.MakeGenericMethodParameter({t.GenericParameterPosition})";
                 } else if (!t.ContainsGenericParameters) {
-                    ret = $"{typeOp}({t.FriendlyName(language)})";
+                    if (t.IsAnonymous()) {
+                        ret = $"{typeOp}(<{(language == CSharp ? "a" : "A")}nonymous({t.FriendlyName(language)})>)";
+                    } else {
+                        ret = $"{typeOp}({t.FriendlyName(language)})";
+                    }
                 } else if (t.IsGenericTypeDefinition) {
                     if (language == CSharp) {
                         ret = $"{typeOp}({t.NonGenericName()}<{t.GetGenericArguments().Joined(",", _ => "")}>)";
