@@ -11,6 +11,10 @@ using System.Linq;
 namespace Tests {
     [Trait("Type", "Literal rendering")]
     public class LiteralRendering {
+        internal static void DummyMethod() { }
+        internal static void DummyMethod(out int i) => i = 5;
+        internal static void DummyMethod(int i, ref int ji) { }
+
         [Theory]
         [MemberData(nameof(TestData))]
         public static void TestLiteral(object o, Language? language, string expected) {
@@ -48,6 +52,10 @@ namespace Tests {
             Expression<Func<Type>> expr = () => timerType;
             var closureType = ((MemberExpression)expr.Body).Expression.Type;
 
+            // out variables
+            int i = 0;
+            int j = 0;
+
             // populate with reflection test data
             new List<(object?, (string csharp, string vb))>() {
                 {typeof(string), ("typeof(string)", "GetType(String)") },
@@ -57,6 +65,23 @@ namespace Tests {
                 {typeof(string).GetField("Empty"), ("typeof(string).GetField(\"Empty\")", "GetType(String).GetField(\"Empty\")") },
                 { GetMethod(() => Console.WriteLine()), ("typeof(Console).GetMethod(\"WriteLine\", new Type[] { })", "GetType(Console).GetMethod(\"WriteLine\", { })") },
                 {GetMember(() => "".Length), ("typeof(string).GetProperty(\"Length\")", "GetType(String).GetProperty(\"Length\")") },
+                {
+                    GetMethod(() => DummyMethod()), (
+                    "typeof(LiteralRendering).GetMethod(\"DummyMethod\", BindingFlags.Static | BindingFlags.NonPublic, null, new Type[] { }, null)",
+                    "GetType(LiteralRendering).GetMethod(\"DummyMethod\", BindingFlags.Static Or BindingFlags.NonPublic, Nothing, { }, Nothing)") 
+                },
+                {
+                    GetMethod(() => DummyMethod(out i)), (
+                        "typeof(LiteralRendering).GetMethod(\"DummyMethod\", BindingFlags.Static | BindingFlags.NonPublic, null, new[] { typeof(int).MakeByRefType() }, null)",
+                        "GetType(LiteralRendering).GetMethod(\"DummyMethod\", BindingFlags.Static Or BindingFlags.NonPublic, Nothing, { GetType(Integer).MakeByRefType() }, Nothing)"
+                    )
+                },
+                {
+                    GetMethod(() => DummyMethod(i, ref j)), (
+                        "typeof(LiteralRendering).GetMethod(\"DummyMethod\", BindingFlags.Static | BindingFlags.NonPublic, null, new[] { typeof(int), typeof(int).MakeByRefType() }, null)",
+                        "GetType(LiteralRendering).GetMethod(\"DummyMethod\", BindingFlags.Static Or BindingFlags.NonPublic, Nothing, { GetType(Integer), GetType(Integer).MakeByRefType() }, Nothing)"
+                    )
+                },
                 {(new { Bar = "bar", Baz = "baz" }).GetType(), ("typeof(<anonymous({ string Bar, string Baz })>)", "GetType(<Anonymous({ .Bar As String, .Baz As String })>)") },
                 {closureType, ("typeof(<closure>)","GetType(<Closure>)") },
 
