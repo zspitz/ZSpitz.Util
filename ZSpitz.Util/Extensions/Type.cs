@@ -34,9 +34,13 @@ namespace ZSpitz.Util {
         public static bool IsNumeric(this Type type) => type.UnderlyingIfNullable().In(numericTypes);
 
         // TODO implement some sort of caching here?
-        private static T ReadStaticField<T>(string name) => 
-            (T)(typeof(T).GetField(name, BindingFlags.Public | BindingFlags.Static)?.GetValue(null) ?? 
-                throw new InvalidOperationException($"Type '{typeof(T)}' doesn't have a '{name}' field"));
+        private static T ReadStaticField<T>(string name) {
+            var fld = typeof(T).GetField(name, BindingFlags.Public | BindingFlags.Static);
+            if (fld is null) { throw new InvalidOperationException($"Type '{typeof(T)}' doesn't have a '{name}' field"); }
+            var value = fld.GetValue(null);
+            if (value is T || value is null) { return (T)value!; }
+            throw new InvalidOperationException($"Field '{name}' doesn't return a value of type '{typeof(T)}'");
+        }
         public static T MinValue<T>() => ReadStaticField<T>("MinValue");
         public static T MaxValue<T>() => ReadStaticField<T>("MaxValue");
 
@@ -182,8 +186,8 @@ namespace ZSpitz.Util {
             )) {
                 isValueTuple = true;
                 return true;
-            } 
-            
+            }
+
             if (openType.In(
                 typeof(Tuple<>),
                 typeof(Tuple<,>),
@@ -217,7 +221,7 @@ namespace ZSpitz.Util {
             type.GetCustomAttributes(typeof(T), inherit).Cast<T>();
 
         private static readonly BindingFlags defaultLookup = BindingFlags.Public | BindingFlags.Instance | BindingFlags.Static;
-        public static PropertyInfo[] GetIndexers(this Type type, bool inherit, BindingFlags? bindingFlags=default) {
+        public static PropertyInfo[] GetIndexers(this Type type, bool inherit, BindingFlags? bindingFlags = default) {
             bindingFlags ??= defaultLookup;
             var memberName = type.GetAttributes<DefaultMemberAttribute>(inherit).FirstOrDefault()?.MemberName;
             if (memberName == null) { return new PropertyInfo[] { }; }
@@ -279,9 +283,57 @@ namespace ZSpitz.Util {
         public static bool ContainsType(this Type t, Type value) {
             if (t == value) { return true; }
             if (!t.IsGenericType || t.IsGenericTypeDefinition) { return false; }
-            return 
+            return
                 t.GetGenericTypeDefinition() == value ||
                 t.GetGenericArguments().Any(x => x.ContainsType(value));
-        } 
+        }
+
+        private static readonly Dictionary<Type, Type[]> builtinImplicitConversions = new[] {
+            (typeof(sbyte), new [] { 
+                typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal)
+            }),
+            (typeof(byte), new [] { 
+                typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal)
+            }),
+            (typeof(short), new [] { 
+                typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal)
+            }),
+            (typeof(ushort), new [] { 
+                typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal)
+            }),
+            (typeof(int), new [] { 
+                typeof(long), typeof(float), typeof(double), typeof(decimal)
+            }),
+            (typeof(uint), new [] { 
+                typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal)
+            }),
+            (typeof(long), new [] { 
+                typeof(float), typeof(double), typeof(decimal)
+            }),
+            (typeof(ulong), new [] { 
+                typeof(float), typeof(double), typeof(decimal)
+            }),
+            (typeof(char), new [] { 
+                typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal)
+            }),
+            (typeof(float), new [] { 
+                typeof(double)
+            })
+        }.ToDictionary();
+
+        // TODO consider caching the result of this function
+        public static bool HasImplicitConversionTo(this Type @base, Type target) {
+            if (builtinImplicitConversions.TryGetValue(@base, out var targets) && target.In(targets)) {
+                return true;
+            }
+
+            bool hasConversion(Type type) =>
+                type
+                    .GetMethods(BindingFlags.Public | BindingFlags.Static)
+                    .Where(mi => mi.Name == "op_Implicit" && mi.ReturnType == target)
+                    .Any(mi => mi.GetParameters().FirstOrDefault()?.ParameterType == @base);
+
+            return hasConversion(@base) || hasConversion(target);
+        }
     }
 }
