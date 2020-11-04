@@ -16,22 +16,23 @@ namespace ZSpitz.Util {
             return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
-        private static readonly HashSet<Type> numericTypes = new HashSet<Type>() {
-            typeof(byte),
-            typeof(short),
-            typeof(int),
-            typeof(long),
-            typeof(sbyte),
-            typeof(ushort),
-            typeof(uint),
-            typeof(ulong),
-            typeof(BigInteger),
-            typeof(float),
-            typeof(double),
-            typeof(decimal)
+        private static readonly Dictionary<Type, bool> numericTypes = new Dictionary<Type, bool> {
+            [typeof(byte)] = true,
+            [typeof(short)] = true,
+            [typeof(int)] = true,
+            [typeof(long)] = true,
+            [typeof(sbyte)] = true,
+            [typeof(ushort)] = true,
+            [typeof(uint)] = true,
+            [typeof(ulong)] = true,
+            [typeof(BigInteger)] = true,
+            [typeof(float)] = false,
+            [typeof(double)] = false,
+            [typeof(decimal)] = false
         };
 
-        public static bool IsNumeric(this Type type) => type.UnderlyingIfNullable().In(numericTypes);
+        public static bool IsNumeric(this Type type) => numericTypes.ContainsKey(type);
+        public static bool IsIntegral(this Type type) => numericTypes.TryGetValue(type, out var isIntegeral) && isIntegeral;
 
         // TODO implement some sort of caching here?
         private static T ReadStaticField<T>(string name) {
@@ -290,34 +291,34 @@ namespace ZSpitz.Util {
         }
 
         private static readonly Dictionary<Type, Type[]> builtinImplicitConversions = new[] {
-            (typeof(sbyte), new [] { 
+            (typeof(sbyte), new [] {
                 typeof(short), typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal)
             }),
-            (typeof(byte), new [] { 
+            (typeof(byte), new [] {
                 typeof(short), typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal)
             }),
-            (typeof(short), new [] { 
+            (typeof(short), new [] {
                 typeof(int), typeof(long), typeof(float), typeof(double), typeof(decimal)
             }),
-            (typeof(ushort), new [] { 
+            (typeof(ushort), new [] {
                 typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal)
             }),
-            (typeof(int), new [] { 
+            (typeof(int), new [] {
                 typeof(long), typeof(float), typeof(double), typeof(decimal)
             }),
-            (typeof(uint), new [] { 
+            (typeof(uint), new [] {
                 typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal)
             }),
-            (typeof(long), new [] { 
+            (typeof(long), new [] {
                 typeof(float), typeof(double), typeof(decimal)
             }),
-            (typeof(ulong), new [] { 
+            (typeof(ulong), new [] {
                 typeof(float), typeof(double), typeof(decimal)
             }),
-            (typeof(char), new [] { 
+            (typeof(char), new [] {
                 typeof(ushort), typeof(int), typeof(uint), typeof(long), typeof(ulong), typeof(float), typeof(double), typeof(decimal)
             }),
-            (typeof(float), new [] { 
+            (typeof(float), new [] {
                 typeof(double)
             })
         }.ToDictionary();
