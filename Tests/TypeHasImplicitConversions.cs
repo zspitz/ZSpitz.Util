@@ -18,7 +18,7 @@ namespace Tests {
 
         [Theory]
         [MemberData(nameof(TestData))]
-        public void TestMethod(Type @base, Type target, bool expected) =>
+        public void TestMethod(Type @base, Type target, bool expected) => 
             Assert.Equal(expected, @base.HasImplicitConversionTo(target));
     }
 }
