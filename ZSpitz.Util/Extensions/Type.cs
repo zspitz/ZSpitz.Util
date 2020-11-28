@@ -35,15 +35,15 @@ namespace ZSpitz.Util {
         public static bool IsIntegral(this Type type) => numericTypes.TryGetValue(type, out var isIntegeral) && isIntegeral;
 
         // TODO implement some sort of caching here?
-        private static T ReadStaticField<T>(string name) {
+        private static T readStaticField<T>(string name) {
             var fld = typeof(T).GetField(name, BindingFlags.Public | BindingFlags.Static);
             if (fld is null) { throw new InvalidOperationException($"Type '{typeof(T)}' doesn't have a '{name}' field"); }
             var value = fld.GetValue(null);
             if (value is T || value is null) { return (T)value!; }
             throw new InvalidOperationException($"Field '{name}' doesn't return a value of type '{typeof(T)}'");
         }
-        public static T MinValue<T>() => ReadStaticField<T>("MinValue");
-        public static T MaxValue<T>() => ReadStaticField<T>("MaxValue");
+        public static T MinValue<T>() => readStaticField<T>("MinValue");
+        public static T MaxValue<T>() => readStaticField<T>("MaxValue");
 
         public static bool InheritsFromOrImplements<T>(this Type type) => typeof(T).IsAssignableFrom(type);
 
@@ -167,6 +167,24 @@ namespace ZSpitz.Util {
             return nongenericName;
         }
 
+        private static readonly Dictionary<Type, bool> tupleTypes = new Dictionary<Type, bool> {
+            { typeof(ValueTuple<>), true },
+            {typeof(ValueTuple<,>), true },
+            {typeof(ValueTuple<,,>), true },
+            {typeof(ValueTuple<,,,>), true },
+            {typeof(ValueTuple<,,,,>), true },
+            {typeof(ValueTuple<,,,,,>), true },
+            {typeof(ValueTuple<,,,,,,>), true },
+            {typeof(ValueTuple<,,,,,,,>), true },
+            { typeof(Tuple<>),false },
+            {typeof(Tuple<,>),false },
+            {typeof(Tuple<,,>),false },
+            {typeof(Tuple<,,,>),false },
+            {typeof(Tuple<,,,,>),false },
+            {typeof(Tuple<,,,,,>),false },
+            {typeof(Tuple<,,,,,,>),false }
+        };
+
         public static bool IsTupleType(this Type type) =>
             type.IsTupleType(out var _);
 
@@ -174,35 +192,8 @@ namespace ZSpitz.Util {
             isValueTuple = false;
 
             if (!type.IsGenericType) { return false; }
-            var openType = type.GetGenericTypeDefinition();
-
-            if (openType.In(
-                typeof(ValueTuple<>),
-                typeof(ValueTuple<,>),
-                typeof(ValueTuple<,,>),
-                typeof(ValueTuple<,,,>),
-                typeof(ValueTuple<,,,,>),
-                typeof(ValueTuple<,,,,,>),
-                typeof(ValueTuple<,,,,,,>),
-                typeof(ValueTuple<,,,,,,,>)
-            )) {
-                isValueTuple = true;
-                return true;
-            }
-
-            if (openType.In(
-                typeof(Tuple<>),
-                typeof(Tuple<,>),
-                typeof(Tuple<,,>),
-                typeof(Tuple<,,,>),
-                typeof(Tuple<,,,,>),
-                typeof(Tuple<,,,,,>),
-                typeof(Tuple<,,,,,,>)
-            )) {
-                return true;
-            }
-
-            return false;
+            var openType = type.UnderlyingIfNullable().GetGenericTypeDefinition();
+            return tupleTypes.TryGetValue(openType, out isValueTuple);
         }
 
         public static IEnumerable<(Type current, Type? root)> NestedArrayTypes(this Type type) {
