@@ -6,7 +6,7 @@ namespace ZSpitz.Util {
     public abstract class TreeNodeBase<TData, TNode, TCollectionWrapper>
             where TNode : TreeNodeBase<TData, TNode, TCollectionWrapper>, new()
             where TCollectionWrapper : IReadOnlyCollection<TNode> {
-        public TData Data { get; set; }
+        public TData? Data { get; set; }
 
         private IList<TNode> _children;
         public TCollectionWrapper Children { get; }
@@ -35,7 +35,7 @@ namespace ZSpitz.Util {
             }
         }
 
-        public TNode AddChild(TData data = default) => new TNode() { Data = data, Parent = (TNode)this };
+        public TNode AddChild(TData? data = default) => new TNode() { Data = data, Parent = (TNode)this };
         public TNode? AddSibling(TData data = default) => Parent?.AddChild(data);
 
         public IEnumerable<TNode> Parents() {

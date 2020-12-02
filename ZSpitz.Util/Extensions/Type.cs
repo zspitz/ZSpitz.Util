@@ -314,31 +314,34 @@ namespace ZSpitz.Util {
             })
         }.ToDictionary();
 
-        /// <summary>
-        /// Returns True if a built-in conversion to the target type exists and is required, or a MethodInfo if an implicit conversion is defined on either type.
-        /// Returns False if no conversion (built-in or user-defined) could be found, or if no conversion is necesssary (i.e. the base type is assignable to the target type)
-        /// </summary>
-        public static OneOf<MethodInfo, bool> GetImplicitConversionTo(this Type @base, Type target) {
+        public static (ConversionStrategy strategy, MethodInfo? method) GetImplicitConversionTo(this Type @base, Type target) {
             MethodInfo? getConversionOnType(Type type) =>
                 type
                     .GetMethods(BindingFlags.Public | BindingFlags.Static)
                     .Where(mi => mi.Name == "op_Implicit" && mi.ReturnType == target)
                     .FirstOrDefault(mi => mi.GetParameters().FirstOrDefault()?.ParameterType == @base);
 
-            if (target.IsAssignableFrom(@base)) { return false; }
-            if (builtinImplicitConversions.TryGetValue(@base, out var targets) && target.In(targets)) { return true; }
-            return
+            if (target.IsAssignableFrom(@base)) { 
+                return (ConversionStrategy.Assignable, null); 
+            }
+            if (builtinImplicitConversions.TryGetValue(@base, out var targets) && target.In(targets)) {
+                return (ConversionStrategy.BuiltIn, null);
+            }
+            var method =
                 getConversionOnType(@base) ??
-                getConversionOnType(target) ??
-                (OneOf<MethodInfo, bool>)false;
+                getConversionOnType(target);
+            return (
+                method is { } ? ConversionStrategy.Method : ConversionStrategy.None,
+                method
+            );
         }
 
         // TODO consider caching the result of this function
-        public static bool HasImplicitConversionTo(this Type @base, Type target) => 
-            target.IsAssignableFrom(@base) ||
-            @base.GetImplicitConversionTo(target).Match(
-                mi => true,
-                b => b
+        public static bool HasImplicitConversionTo(this Type @base, Type target) =>
+            @base.GetImplicitConversionTo(target).strategy.In(
+                ConversionStrategy.Assignable,
+                ConversionStrategy.BuiltIn,
+                ConversionStrategy.Method
             );
     }
 }

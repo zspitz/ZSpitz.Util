@@ -68,7 +68,7 @@ namespace ZSpitz.Util {
                 bool isByRef = false;
                 if (t.IsByRef) {
                     isByRef = true;
-                    t = t.GetElementType();
+                    t = t.GetElementType()!;
                 }
 
                 if (t.IsGenericParameter) {
@@ -94,14 +94,14 @@ namespace ZSpitz.Util {
                 var (method, args) = mi.GetInputs();
                 var name = method.Match(mi => mi.Name, s => s);
                 ret = $"{RenderLiteral(mi.ReflectedType, language)}.{name}({args.Joined(", ", x => RenderLiteral(x, language))})";
-            } else if (type.IsArray && !type.GetElementType().IsArray && type.GetArrayRank() == 1 && language.In(CSharp, VisualBasic)) {
+            } else if (type.IsArray && !type.GetElementType()!.IsArray && type.GetArrayRank() == 1 && language.In(CSharp, VisualBasic)) {
                 var values = ((Array)o).Cast<object>().Joined(", ", x => RenderLiteral(x, language));
                 values =
                     values.IsNullOrWhitespace() ?
                         " " :
                         $" {values} ";
                 if (language == CSharp) {
-                    var typename = values.IsNullOrWhitespace() ? " " + type.GetElementType().FriendlyName(language) : "";
+                    var typename = values.IsNullOrWhitespace() ? " " + type.GetElementType()!.FriendlyName(language) : "";
                     ret = $"new{typename}[] {{{values}}}";
                 } else {
                     ret = $"{{{values}}}";
@@ -138,10 +138,10 @@ namespace ZSpitz.Util {
                     if (x.Name != "ToString") { return false; }
                     if (x.GetParameters().Any()) { return false; }
                     if (x.DeclaringType == typeof(object)) { return false; }
-                    if (x.DeclaringType.InheritsFromOrImplements<EnumerableQuery>()) { return false; } // EnumerableQuery implements its own ToString which we don't want to use
+                    if (x.DeclaringType!.InheritsFromOrImplements<EnumerableQuery>()) { return false; } // EnumerableQuery implements its own ToString which we don't want to use
                     return true;
                 });
-                if (hasDeclaredToString) { return o.ToString(); }
+                if (hasDeclaredToString) { return o.ToString()!; }
             }
             return repr;
         }
@@ -312,11 +312,12 @@ namespace ZSpitz.Util {
 
         // TODO consider using Pather for this
         static readonly Regex re = new Regex(@"(?:^|\.)(\w+)(?:\[(\d+)\])?");
-        public static object ResolvePath(object o, string path) {
+        public static object? ResolvePath(object? o, string path) {
+            // note that we want to have a NullReferenceException if any parts of the path (except the last one) resolve to null
             foreach (var (propertyName, index) in re.Matches(path).Cast<Match>()) {
-                o = o.GetType().GetProperty(propertyName).GetValue(o);
+                o = o!.GetType().GetProperty(propertyName)!.GetValue(o);
                 if (!index.IsNullOrWhitespace()) {
-                    o = o.GetType().GetIndexers(true).Single(x => x.GetIndexParameters().Single().ParameterType == typeof(int)).GetValue(o, new object[] { int.Parse(index) });
+                    o = o!.GetType().GetIndexers(true).Single(x => x.GetIndexParameters().Single().ParameterType == typeof(int)).GetValue(o, new object[] { int.Parse(index) });
                 }
             }
             return o;

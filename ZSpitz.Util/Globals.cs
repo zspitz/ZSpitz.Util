@@ -8,4 +8,11 @@
         CSharp,
         VisualBasic
     }
+
+    public enum ConversionStrategy {
+        None,
+        Assignable,
+        BuiltIn,
+        Method
+    }
 }

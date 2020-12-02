@@ -26,10 +26,10 @@ namespace ZSpitz.Util {
         private static BindingFlags getBindingFlags(this MemberInfo mi) {
             var (isPublic, isStatic) = mi switch {
                 ConstructorInfo ci => (ci.IsPublic, ci.IsStatic),
-                EventInfo ei => bindingFlagsInfo(ei.AddMethod, ei.RemoveMethod, ei.RaiseMethod),
+                EventInfo ei => bindingFlagsInfo(ei.AddMethod!, ei.RemoveMethod!, ei.RaiseMethod!),
                 FieldInfo fi => (fi.IsPublic, fi.IsStatic),
                 MethodInfo mthdi => (mthdi.IsPublic, mthdi.IsStatic),
-                PropertyInfo pi => bindingFlagsInfo(pi.GetMethod, pi.SetMethod),
+                PropertyInfo pi => bindingFlagsInfo(pi.GetMethod!, pi.SetMethod!),
                 //Type t => (t.IsPublic, t.I)
                 _ => throw new NotImplementedException()
             };
@@ -45,7 +45,7 @@ namespace ZSpitz.Util {
 
         // .NET Framework is missing some of the GetMethod/GetConstructor overloads
         internal static (OneOf<MethodInfo, string> method, object?[] args) GetInputs(this MemberInfo mi) {
-            var reflectedType = mi.ReflectedType;
+            var reflectedType = mi.ReflectedType!;
             var parameters = new List<(Type type, object? value)>();
             if (!(mi is ConstructorInfo)) {
                 parameters.Add(typeof(string), mi.Name);

@@ -7,7 +7,7 @@ using static ZSpitz.Util.Language;
 
 namespace ZSpitz.Util {
     public static class ExpressionExtensions {
-        public static object ExtractValue(this Expression expr) {
+        public static object? ExtractValue(this Expression expr) {
             if (!(expr is LambdaExpression lambda)) {
                 lambda = Lambda(expr);
             }
@@ -36,8 +36,8 @@ namespace ZSpitz.Util {
             expr is MemberExpression mexpr && (mexpr.Expression?.Type.IsClosureClass() ?? false);
 
         public static string? Name(this Expression expr, Language language = CSharp) {
-            string qualifiedName(Expression instance, MemberInfo mi) => 
-                (instance is null ? $"{mi.DeclaringType.FriendlyName(language)}." : "") + mi.Name;
+            string qualifiedName(Expression? instance, MemberInfo mi) => 
+                (instance is null ? $"{mi.DeclaringType!.FriendlyName(language)}." : "") + mi.Name;
 
             return expr switch {
                 ParameterExpression pexpr => pexpr.Name,

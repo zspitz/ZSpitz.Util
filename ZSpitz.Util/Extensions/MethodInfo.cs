@@ -9,13 +9,13 @@ namespace ZSpitz.Util {
     public static class MethodInfoExtensions {
         public static bool IsIndexerMethod(this MethodInfo mi) =>
             mi.In(
-                mi.ReflectedType
+                mi.ReflectedType!
                     .GetIndexers(true)
                     .SelectMany(x => new[] { x.GetMethod, x.SetMethod })
             );
 
         public static bool IsIndexerMethod(this MethodInfo mi, out PropertyInfo? pi) {
-            var indexerMethods = mi.ReflectedType
+            var indexerMethods = mi.ReflectedType!
                 .GetIndexers(true)
                 .SelectMany(x => new[] {
                     (x, x.GetMethod),
