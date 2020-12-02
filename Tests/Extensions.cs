@@ -17,6 +17,13 @@ namespace Tests {
             }
             return ret;
         }
+        internal static TheoryData<T1, T2, T3, T4> ToTheoryData<T1, T2, T3, T4>(this IEnumerable<(T1, T2, T3, T4)> src) {
+            var ret = new TheoryData<T1, T2, T3, T4>();
+            foreach (var (a, b, c, d) in src) {
+                ret.Add(a, b, c, d);
+            }
+            return ret;
+        }
 
     }
 }
