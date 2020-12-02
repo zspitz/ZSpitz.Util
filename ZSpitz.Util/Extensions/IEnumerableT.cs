@@ -26,7 +26,7 @@ namespace ZSpitz.Util {
             return src;
         }
 
-        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<(TKey, TValue)> src) => src.ToDictionary(t => t.Item1, t => t.Item2);
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<(TKey, TValue)> src) where TKey : notnull => src.ToDictionary(t => t.Item1, t => t.Item2);
 
         public static string Joined<T>(this IEnumerable<T> source, string delimiter = ",", Func<T, string>? selector = null) {
             if (source == null) { return ""; }

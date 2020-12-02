@@ -199,7 +199,7 @@ namespace ZSpitz.Util {
         public static IEnumerable<(Type current, Type? root)> NestedArrayTypes(this Type type) {
             var currentType = type;
             while (currentType.IsArray) {
-                var nextType = currentType.GetElementType();
+                var nextType = currentType.GetElementType()!;
                 if (nextType.IsArray) {
                     yield return (currentType, null);
                 } else {
@@ -314,19 +314,31 @@ namespace ZSpitz.Util {
             })
         }.ToDictionary();
 
-        // TODO consider caching the result of this function
-        public static bool HasImplicitConversionTo(this Type @base, Type target) {
-            bool hasConversion(Type type) =>
+        /// <summary>
+        /// Returns True if a built-in conversion to the target type exists and is required, or a MethodInfo if an implicit conversion is defined on either type.
+        /// Returns False if no conversion (built-in or user-defined) could be found, or if no conversion is necesssary (i.e. the base type is assignable to the target type)
+        /// </summary>
+        public static OneOf<MethodInfo, bool> GetImplicitConversionTo(this Type @base, Type target) {
+            MethodInfo? getConversionOnType(Type type) =>
                 type
                     .GetMethods(BindingFlags.Public | BindingFlags.Static)
                     .Where(mi => mi.Name == "op_Implicit" && mi.ReturnType == target)
-                    .Any(mi => mi.GetParameters().FirstOrDefault()?.ParameterType == @base);
+                    .FirstOrDefault(mi => mi.GetParameters().FirstOrDefault()?.ParameterType == @base);
 
+            if (target.IsAssignableFrom(@base)) { return false; }
+            if (builtinImplicitConversions.TryGetValue(@base, out var targets) && target.In(targets)) { return true; }
             return
-                target.IsAssignableFrom(@base) ||
-                builtinImplicitConversions.TryGetValue(@base, out var targets) && target.In(targets) ||
-                hasConversion(@base) ||
-                hasConversion(target);
+                getConversionOnType(@base) ??
+                getConversionOnType(target) ??
+                (OneOf<MethodInfo, bool>)false;
         }
+
+        // TODO consider caching the result of this function
+        public static bool HasImplicitConversionTo(this Type @base, Type target) => 
+            target.IsAssignableFrom(@base) ||
+            @base.GetImplicitConversionTo(target).Match(
+                mi => true,
+                b => b
+            );
     }
 }
