@@ -328,5 +328,27 @@ namespace ZSpitz.Util {
         public static T IIFE<T>(Func<T> fn) => fn();
 
         public static bool IsEqual<T>(T current, T newValue) => EqualityComparer<T>.Default.Equals(current, newValue);
+
+        public static object MakeTuple(bool valueTuple, object?[] elements, Type[]? types = null) {
+            types ??= elements.Select(x =>
+                x is null ?
+                    typeof(object) :
+                    x.GetType()
+            ).ToArray();
+
+            var tupleFactoryType =
+                valueTuple ?
+                    typeof(ValueTuple) :
+                    typeof(Tuple);
+
+            return tupleFactoryType
+                .GetMethods()
+                .First(x => x.Name == "Create" && x.GetGenericArguments().Length == types.Length)
+                .MakeGenericMethod(types)
+                .Invoke(null, elements)!;
+        }
+
+        public static object MakeTuple(params object[] elements) => makeTuple(true, elements);
+        public static object MakeOldTuple(params object[] elements) => makeTuple(false, elements);
     }
 }
