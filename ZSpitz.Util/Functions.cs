@@ -348,7 +348,7 @@ namespace ZSpitz.Util {
                 .Invoke(null, elements)!;
         }
 
-        public static object MakeTuple(params object[] elements) => makeTuple(true, elements);
-        public static object MakeOldTuple(params object[] elements) => makeTuple(false, elements);
+        public static object MakeValueTuple(params object[] elements) => MakeTuple(true, elements);
+        public static object MakeOldTuple(params object[] elements) => MakeTuple(false, elements);
     }
 }
