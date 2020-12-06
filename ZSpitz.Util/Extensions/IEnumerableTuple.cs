@@ -11,9 +11,9 @@ namespace ZSpitz.Util {
         public static IEnumerable<(T1, T2, T3)> ForEachT<T1, T2, T3>(this IEnumerable<(T1, T2, T3)> src, Action<T1, T2, T3> action) => src.ForEach(x => action(x.Item1, x.Item2, x.Item3));
         public static IEnumerable<(T1, T2, T3, T4)> ForEachT<T1, T2, T3, T4>(this IEnumerable<(T1, T2, T3, T4)> src, Action<T1, T2, T3, T4> action) => src.ForEach(x => action(x.Item1, x.Item2, x.Item3, x.Item4));
 
-        public static string Joined<T1, T2>(this IEnumerable<(T1, T2)> src, string delimiter, Func<T1, T2, string> selector) =>
+        public static string JoinedT<T1, T2>(this IEnumerable<(T1, T2)> src, string delimiter, Func<T1, T2, string> selector) =>
             src.Joined(delimiter, x => selector(x.Item1, x.Item2));
-        public static string Joined<T1, T2>(this IEnumerable<(T1, T2)> src, string delimiter, Func<T1, T2, int, string> selector) =>
+        public static string JoinedT<T1, T2>(this IEnumerable<(T1, T2)> src, string delimiter, Func<T1, T2, int, string> selector) =>
             src.Joined(delimiter, (x, index) => selector(x.Item1, x.Item2, index));
 
         public static IEnumerable<T2> Item2s<T1, T2>(this IEnumerable<(T1, T2)> src) => src.Select(x => x.Item2);

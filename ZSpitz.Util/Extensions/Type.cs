@@ -122,7 +122,7 @@ namespace ZSpitz.Util {
                         ("[", "]") :
                         ("(", ")"); // language == VisualBasic
                 var nestedArrayTypes = type.NestedArrayTypes().ToList();
-                string arraySpecifiers = nestedArrayTypes.Joined("",
+                string arraySpecifiers = nestedArrayTypes.JoinedT("",
                     (current, _, index) => left + Repeat("", current.GetArrayRank()).Joined() + right
                 );
                 return nestedArrayTypes.Last().root!.FriendlyName(language) + arraySpecifiers;
