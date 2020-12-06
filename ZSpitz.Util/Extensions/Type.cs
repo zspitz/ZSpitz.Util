@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using static System.Linq.Enumerable;
 using static ZSpitz.Util.Language;
+using static ZSpitz.Util.Functions;
 
 namespace ZSpitz.Util {
     public static class TypeExtensions {
@@ -321,8 +322,8 @@ namespace ZSpitz.Util {
                     .Where(mi => mi.Name == "op_Implicit" && mi.ReturnType == target)
                     .FirstOrDefault(mi => mi.GetParameters().FirstOrDefault()?.ParameterType == @base);
 
-            if (target.IsAssignableFrom(@base)) { 
-                return (ConversionStrategy.Assignable, null); 
+            if (target.IsAssignableFrom(@base)) {
+                return (ConversionStrategy.Assignable, null);
             }
             if (builtinImplicitConversions.TryGetValue(@base, out var targets) && target.In(targets)) {
                 return (ConversionStrategy.BuiltIn, null);
@@ -370,8 +371,11 @@ namespace ZSpitz.Util {
                 .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition().In(oneOfDefinitions));
 
         public static Type[] OneOfSubtypes(this Type t) =>
-            t.OneOfType()?.GetGenericArguments() ?? Array.Empty<Type>();
+            t.OneOfType()?.GetGenericArguments() ??
+#if NET452
+                EmptyArray<Type>();
+#else
+                Array.Empty<Type>();
+#endif
     }
-
-}
 }

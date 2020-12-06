@@ -350,5 +350,12 @@ namespace ZSpitz.Util {
 
         public static object MakeValueTuple(params object[] elements) => MakeTuple(true, elements);
         public static object MakeOldTuple(params object[] elements) => MakeTuple(false, elements);
+
+#if NET452
+        private static class emptyArray<T> {
+            public static readonly T[] Value = new T[0];
+        }
+        public static T[] EmptyArray<T>() => emptyArray<T>.Value;
+#endif
     }
 }
