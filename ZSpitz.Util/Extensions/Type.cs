@@ -343,5 +343,35 @@ namespace ZSpitz.Util {
                 ConversionStrategy.BuiltIn,
                 ConversionStrategy.Method
             );
+
+        private static readonly HashSet<Type> oneOfDefinitions = new HashSet<Type> {
+            typeof(OneOf<>),
+            typeof(OneOf<,>),
+            typeof(OneOf<,,>),
+            typeof(OneOf<,,,>),
+            typeof(OneOf<,,,,>),
+            typeof(OneOf<,,,,,>),
+            typeof(OneOf<,,,,,,>),
+            typeof(OneOf<,,,,,,,>),
+            typeof(OneOf<,,,,,,,,>),
+            typeof(OneOfBase<>),
+            typeof(OneOfBase<,>),
+            typeof(OneOfBase<,,>),
+            typeof(OneOfBase<,,,>),
+            typeof(OneOfBase<,,,,>),
+            typeof(OneOfBase<,,,,,>),
+            typeof(OneOfBase<,,,,,,>),
+            typeof(OneOfBase<,,,,,,,>),
+            typeof(OneOfBase<,,,,,,,,>)
+        };
+
+        public static Type? OneOfType(this Type t) =>
+            t.BaseTypes(false, true)
+                .FirstOrDefault(x => x.IsGenericType && x.GetGenericTypeDefinition().In(oneOfDefinitions));
+
+        public static Type[] OneOfSubtypes(this Type t) =>
+            t.OneOfType()?.GetGenericArguments() ?? Array.Empty<Type>();
     }
+
+}
 }
