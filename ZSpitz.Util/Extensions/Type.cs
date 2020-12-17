@@ -34,6 +34,7 @@ namespace ZSpitz.Util {
 
         public static bool IsNumeric(this Type type) => numericTypes.ContainsKey(type);
         public static bool IsIntegral(this Type type) => numericTypes.TryGetValue(type, out var isIntegeral) && isIntegeral;
+        public static bool IsNonIntegral(this Type type) => numericTypes.TryGetValue(type, out var isIntegeral) && !isIntegeral;
 
         // TODO implement some sort of caching here?
         private static T readStaticField<T>(string name) {
