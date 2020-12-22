@@ -69,7 +69,8 @@ namespace ZSpitz.Util {
             sb.AppendLine(toAppend);
         }
 
-        public static string? ToCamelCase(this string s) {
+        [return:NotNullIfNotNull("s")]
+        public static string? ToCamelCase(this string? s) {
             if (s == null || s.Length == 0) { return s; }
             return char.ToLowerInvariant(s[0]) + s.Substring(1);
         }
