@@ -7,14 +7,15 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Text.RegularExpressions;
 using static ZSpitz.Util.Language;
-using static System.Globalization.CultureInfo;
+using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace ZSpitz.Util {
     public static class Functions {
         public static (bool isLiteral, string repr) TryRenderLiteral(object? o, OneOf<string, Language?> languageArg) {
             var language = languageArg.ResolveLanguage();
 
-            bool rendered = true;
+            var rendered = true;
             string? ret = null;
             if (o is null) {
                 ret =
@@ -26,11 +27,10 @@ namespace ZSpitz.Util {
 
             var type = o.GetType().UnderlyingIfNullable();
             if (o is bool b) {
-                if (language == CSharp) {
-                    ret = b ? "true" : "false";
-                } else { // Visual Basic and Boolean.ToString are the same
-                    ret = b ? "True" : "False";
-                }
+                ret = 
+                    language == CSharp ? 
+                        b ? "true" : "false" : 
+                        b ? "True" : "False";
             } else if (o is char c) {
                 if (language == CSharp) {
                     ret = $"'{c}'";
@@ -65,7 +65,7 @@ namespace ZSpitz.Util {
                 var typeOp = language == CSharp ? "typeof" : "GetType";
 
                 // I'm not entirely sure a generic type definition type can have IsByRef == true
-                bool isByRef = false;
+                var isByRef = false;
                 if (t.IsByRef) {
                     isByRef = true;
                     t = t.GetElementType()!;
@@ -74,17 +74,15 @@ namespace ZSpitz.Util {
                 if (t.IsGenericParameter) {
                     ret = $"Type.MakeGenericMethodParameter({t.GenericParameterPosition})";
                 } else if (!t.ContainsGenericParameters) {
-                    if (t.IsAnonymous()) {
-                        ret = $"{typeOp}(<{(language == CSharp ? "a" : "A")}nonymous({t.FriendlyName(language)})>)";
-                    } else {
-                        ret = $"{typeOp}({t.FriendlyName(language)})";
-                    }
+                    ret = t.IsAnonymous() ?
+                        $"{typeOp}(<{(language == CSharp ? "a" : "A")}nonymous({t.FriendlyName(language)})>)" :
+                        $"{typeOp}({t.FriendlyName(language)})";
                 } else if (t.IsGenericTypeDefinition) {
-                    if (language == CSharp) {
-                        ret = $"{typeOp}({t.NonGenericName()}<{t.GetGenericArguments().Joined(",", _ => "")}>)";
-                    } else {
-                        ret = $"{typeOp}({t.NonGenericName()}(Of {t.GetGenericArguments().Joined(",", _ => "")}))";
-                    }
+                    var (pre, post) =
+                        language == CSharp ?
+                            ("<", ">") :
+                            ("(Of ", ")");
+                    ret = $"{typeOp}({t.NonGenericName()}{pre}{t.GetGenericArguments().Joined(",", _ => "")}{post})";
                 } else {
                     ret = $"{RenderLiteral(t.GetGenericTypeDefinition(), language)}.MakeGenericType({t.GenericTypeArguments.Joined(", ", x => RenderLiteral(x, language))})";
                 }
@@ -183,16 +181,16 @@ namespace ZSpitz.Util {
             const int indexLimit = 1000000;
             const int alignmentLimit = 100000;
 
-            int pos = -1;
-            char ch = '\x0';
-            int lastPos = format.Length - 1;
+            var pos = -1;
+            var ch = '\x0';
+            var lastPos = format.Length - 1;
 
             var parts = new List<(string literal, int? index, int? alignment, string? itemFormat)>();
 
             while (pos <= lastPos) {
 
                 // Parse literal until argument placeholder
-                string literal = "";
+                var literal = "";
                 while (pos < lastPos) {
                     advanceChar();
 
@@ -223,7 +221,7 @@ namespace ZSpitz.Util {
                 }
 
                 // Parse index section; required
-                int index = getNumber(indexLimit);
+                var index = getNumber(indexLimit);
 
                 // Parse alignment; optional
                 int? alignment = null;
@@ -283,14 +281,14 @@ namespace ZSpitz.Util {
             int getNumber(int limit, bool allowNegative = false) {
                 skipWhitespace();
 
-                bool isNegative = false;
+                var isNegative = false;
                 if (ch == '-') {
                     if (!allowNegative) { throw new FormatException("Negative number not allowed"); }
                     isNegative = true;
                     advanceChar();
                 }
                 if (ch < '0' || ch > '9') { throw new FormatException("Expected digit"); }
-                int ret = 0;
+                var ret = 0;
                 do {
                     ret = ret * 10 + ch - '0';
                     advanceChar();
@@ -357,5 +355,42 @@ namespace ZSpitz.Util {
         }
         public static T[] EmptyArray<T>() => emptyArray<T>.Value;
 #endif
+
+        public static ProcessResult RunProcess(Process process, string input = "") {
+            var output = "";
+            var error = "";
+            process.OutputDataReceived += (s, ea) => output += ea.Data;
+            process.ErrorDataReceived += (s, ea) => error += ea.Data;
+            process.Start();
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+            if (!input.IsNullOrEmpty()) {
+                process.StandardInput.WriteLine(input);
+                process.StandardInput.Close();
+            }
+            process.WaitForExit();
+            return new ProcessResult(process.ExitCode, output, error);
+        }
+
+        public static Task<ProcessResult> RunProcessAsync(Process process, string input = "") {
+            var tcs = new TaskCompletionSource<ProcessResult>();
+            var (output, error) = ("", "");
+            process.Exited += (s, e) => tcs.SetResult(new ProcessResult(process.ExitCode, output, error));
+            process.OutputDataReceived += (s, ea) => output += ea.Data;
+            process.ErrorDataReceived += (s, ea) => error += ea.Data;
+
+            if (!process.Start()) {
+                // what happens to the Exited event if process doesn't start successfully?
+                throw new InvalidOperationException();
+            }
+            process.BeginOutputReadLine();
+            process.BeginErrorReadLine();
+            if (!input.IsNullOrEmpty()) {
+                process.StandardInput.WriteLine(input);
+                process.StandardInput.Close();
+            }
+
+            return tcs.Task;
+        }
     }
 }
