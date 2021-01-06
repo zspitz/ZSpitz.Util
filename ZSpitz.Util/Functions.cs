@@ -27,9 +27,9 @@ namespace ZSpitz.Util {
 
             var type = o.GetType().UnderlyingIfNullable();
             if (o is bool b) {
-                ret = 
-                    language == CSharp ? 
-                        b ? "true" : "false" : 
+                ret =
+                    language == CSharp ?
+                        b ? "true" : "false" :
                         b ? "True" : "False";
             } else if (o is char c) {
                 if (language == CSharp) {
@@ -48,8 +48,7 @@ namespace ZSpitz.Util {
             } else if (o is Enum e) {
                 if (type.HasAttribute<FlagsAttribute>()) {
                     var flagValues = e.GetIndividualFlags().ToArray();
-                    var or = language switch
-                    {
+                    var or = language switch {
                         CSharp => " | ",
                         VisualBasic => " Or ",
                         _ => ", "
@@ -264,11 +263,11 @@ namespace ZSpitz.Util {
 
             void advanceChar(bool ignoreEnd = false) {
                 pos += 1;
-                ch = 
-                    pos <= lastPos ? 
-                        format[pos] : 
-                        ignoreEnd ? 
-                            '\x0' : 
+                ch =
+                    pos <= lastPos ?
+                        format[pos] :
+                        ignoreEnd ?
+                            '\x0' :
                             throw new FormatException("Unexpected end of text");
             }
 
@@ -357,13 +356,23 @@ namespace ZSpitz.Util {
 #endif
 
         public static ProcessResult RunProcess(Process process, string input = "") {
-            var output = "";
-            var error = "";
-            process.OutputDataReceived += (s, ea) => output += ea.Data;
-            process.ErrorDataReceived += (s, ea) => error += ea.Data;
-            process.Start();
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
+            var (output, error) = ("", "");
+            var (redirectOut, redirectErr) = (
+                process.StartInfo.RedirectStandardOutput, 
+                process.StartInfo.RedirectStandardError
+            );
+            if (redirectOut) {
+                process.OutputDataReceived += (s, ea) => output += ea.Data;
+            }
+            if (redirectErr) {
+                process.ErrorDataReceived += (s, ea) => error += ea.Data;
+            }
+
+            if (!process.Start()) {
+                throw new InvalidOperationException();
+            };
+            if (redirectOut) { process.BeginOutputReadLine(); }
+            if (redirectErr) { process.BeginErrorReadLine(); }
             if (!input.IsNullOrEmpty()) {
                 process.StandardInput.WriteLine(input);
                 process.StandardInput.Close();
@@ -375,16 +384,30 @@ namespace ZSpitz.Util {
         public static Task<ProcessResult> RunProcessAsync(Process process, string input = "") {
             var tcs = new TaskCompletionSource<ProcessResult>();
             var (output, error) = ("", "");
+            var (redirectOut, redirectErr) = (
+                process.StartInfo.RedirectStandardOutput,
+                process.StartInfo.RedirectStandardError
+            );
             process.Exited += (s, e) => tcs.SetResult(new ProcessResult(process.ExitCode, output, error));
-            process.OutputDataReceived += (s, ea) => output += ea.Data;
-            process.ErrorDataReceived += (s, ea) => error += ea.Data;
+            if (redirectOut) {
+                process.OutputDataReceived += (s, ea) => output += ea.Data;
+            }
+            if (redirectErr) {
+                process.ErrorDataReceived += (s, ea) => error += ea.Data;
+            }
 
             if (!process.Start()) {
                 // what happens to the Exited event if process doesn't start successfully?
                 throw new InvalidOperationException();
             }
-            process.BeginOutputReadLine();
-            process.BeginErrorReadLine();
+
+            if (redirectOut) {
+                process.BeginOutputReadLine();
+            }
+            if (redirectErr) {
+                process.BeginErrorReadLine();
+            }
+            
             if (!input.IsNullOrEmpty()) {
                 process.StandardInput.WriteLine(input);
                 process.StandardInput.Close();
