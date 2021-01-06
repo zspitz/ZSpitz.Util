@@ -41,8 +41,9 @@ namespace ZSpitz.Util {
             var fld = typeof(T).GetField(name, BindingFlags.Public | BindingFlags.Static);
             if (fld is null) { throw new InvalidOperationException($"Type '{typeof(T)}' doesn't have a '{name}' field"); }
             var value = fld.GetValue(null);
-            if (value is T || value is null) { return (T)value!; }
-            throw new InvalidOperationException($"Field '{name}' doesn't return a value of type '{typeof(T)}'");
+            return value is not T && value is not null ? 
+                throw new InvalidOperationException($"Field '{name}' doesn't return a value of type '{typeof(T)}'") :
+                (T)value!;
         }
         public static T MinValue<T>() => readStaticField<T>("MinValue");
         public static T MaxValue<T>() => readStaticField<T>("MaxValue");
@@ -61,7 +62,7 @@ namespace ZSpitz.Util {
         public static bool IsVBAnonymousDelegate(this Type type) =>
             type.HasAttribute<CompilerGeneratedAttribute>() && type.Name.Contains("VB$AnonymousDelegate");
 
-        private static readonly Dictionary<Type, string> CSKeywordTypes = new Dictionary<Type, string> {
+        private static readonly Dictionary<Type, string> csharpKeywordTypes = new Dictionary<Type, string> {
             {typeof(bool), "bool"},
             {typeof(byte), "byte"},
             {typeof(sbyte), "sbyte"},
@@ -80,7 +81,7 @@ namespace ZSpitz.Util {
             {typeof(void), "void" }
         };
 
-        private static readonly Dictionary<Type, string> VBKeywordTypes = new Dictionary<Type, string> {
+        private static readonly Dictionary<Type, string> vbKeywordTypes = new Dictionary<Type, string> {
             {typeof(bool), "Boolean"},
             {typeof(byte), "Byte"},
             {typeof(char), "Char"},
@@ -119,12 +120,12 @@ namespace ZSpitz.Util {
             }
 
             if (type.IsArray) {
-                (string left, string right) =
+                (var left, var right) =
                     language == CSharp ?
                         ("[", "]") :
                         ("(", ")"); // language == VisualBasic
                 var nestedArrayTypes = type.NestedArrayTypes().ToList();
-                string arraySpecifiers = nestedArrayTypes.JoinedT("",
+                var arraySpecifiers = nestedArrayTypes.JoinedT("",
                     (current, _, index) => left + Repeat("", current.GetArrayRank()).Joined() + right
                 );
                 return nestedArrayTypes.Last().root!.FriendlyName(language) + arraySpecifiers;
@@ -137,10 +138,11 @@ namespace ZSpitz.Util {
                 }
 
                 var dict = language == CSharp ?
-                    CSKeywordTypes :
-                    VBKeywordTypes; // language == VisualBasic
-                if (dict.TryGetValue(type, out var ret)) { return ret; }
-                return type.Name;
+                    csharpKeywordTypes :
+                    vbKeywordTypes; // language == VisualBasic
+                return dict.TryGetValue(type, out var ret) ? 
+                    ret : 
+                    type.Name;
             }
 
             if (type.GetGenericTypeDefinition() == typeof(Nullable<>)) {
@@ -153,7 +155,6 @@ namespace ZSpitz.Util {
 
             var args = type.GetGenericArguments();
             var parts = type.GetGenericArguments().Joined(", ", t => t.FriendlyName(language));
-            var backtickIndex = type.Name.IndexOf('`');
             var nongenericName = type.NonGenericName();
             return language == CSharp ?
                 $"{nongenericName}<{parts}>" :
@@ -219,8 +220,13 @@ namespace ZSpitz.Util {
         public static PropertyInfo[] GetIndexers(this Type type, bool inherit, BindingFlags? bindingFlags = default) {
             bindingFlags ??= defaultLookup;
             var memberName = type.GetAttributes<DefaultMemberAttribute>(inherit).FirstOrDefault()?.MemberName;
-            if (memberName == null) { return new PropertyInfo[] { }; }
-            return type.GetProperties(bindingFlags.Value).Where(x => x.Name == memberName).ToArray();
+            return memberName == null ?
+#if NET452
+                EmptyArray<PropertyInfo>() :
+#else
+                Array.Empty<PropertyInfo>() :
+#endif
+                type.GetProperties(bindingFlags.Value).Where(x => x.Name == memberName).ToArray();
         }
 
         // https://stackoverflow.com/a/55244482
@@ -269,10 +275,10 @@ namespace ZSpitz.Util {
                 }
             }
 
-            Type reduceToGeneric(Type sourceType) {
-                if (sourceType.IsGenericType && genericDefinitions) { return sourceType.GetGenericTypeDefinition(); }
-                return sourceType;
-            }
+            Type reduceToGeneric(Type sourceType) =>
+                sourceType.IsGenericType && genericDefinitions ?
+                    sourceType.GetGenericTypeDefinition() :
+                    sourceType;
         }
 
         public static bool ContainsType(this Type t, Type value) {

@@ -132,14 +132,12 @@ namespace ZSpitz.Util {
             var language = languageArg.ResolveLanguage();
             var (isLiteral, repr) = TryRenderLiteral(o, language);
             if (!isLiteral) {
-                var hasDeclaredToString = o!.GetType().GetMethods().Any(x => {
-                    if (x.Name != "ToString") { return false; }
-                    if (x.GetParameters().Any()) { return false; }
-                    if (x.DeclaringType == typeof(object)) { return false; }
-                    if (x.DeclaringType!.InheritsFromOrImplements<EnumerableQuery>()) { return false; } // EnumerableQuery implements its own ToString which we don't want to use
-                    return true;
-                });
-                if (hasDeclaredToString) { return o.ToString()!; }
+                if (o!.GetType().GetMethods().Any(x =>
+                    x.Name == nameof(ToString) &&
+                    x.GetParameters().None() &&
+                    x.DeclaringType != typeof(object) &&
+                    !x.DeclaringType!.InheritsFromOrImplements<EnumerableQuery>() // EnumerableQuery implements its own ToString which we don't want to use
+                )) { return o.ToString()!; }
             }
             return repr;
         }
@@ -160,8 +158,11 @@ namespace ZSpitz.Util {
             var type = tuple.GetType();
             if (!type.IsTupleType()) { throw new InvalidOperationException(); }
             var fields = type.GetFields();
-            if (fields.Any()) { return type.GetFields().Select(x => x.GetValue(tuple)).ToArray(); }
-            return type.GetProperties().Select(x => x.GetValue(tuple)).ToArray();
+            var elements =
+                fields.Any() ?
+                    fields.Select(x => x.GetValue(tuple)) :
+                    type.GetProperties().Select(x => x.GetValue(tuple));
+            return elements.ToArray();
         }
 
         public static bool TryTupleValues(object tuple, [NotNullWhen(true)] out object?[]? values) {
@@ -176,7 +177,7 @@ namespace ZSpitz.Util {
 
         // based on https://github.com/dotnet/corefx/blob/7cf002ec36109943c048ec8da8ef80621190b4be/src/Common/src/CoreLib/System/Text/StringBuilder.cs#L1514
         public static (string literal, int? index, int? alignment, string? itemFormat)[] ParseFormatString(string format) {
-            if (format == null) { throw new ArgumentNullException("format"); }
+            if (format == null) { throw new ArgumentNullException(nameof(format)); }
 
             const int indexLimit = 1000000;
             const int alignmentLimit = 100000;
@@ -263,13 +264,12 @@ namespace ZSpitz.Util {
 
             void advanceChar(bool ignoreEnd = false) {
                 pos += 1;
-                if (pos <= lastPos) {
-                    ch = format[pos];
-                } else if (ignoreEnd) {
-                    ch = '\x0';
-                } else {
-                    throw new FormatException("Unexpected end of text");
-                }
+                ch = 
+                    pos <= lastPos ? 
+                        format[pos] : 
+                        ignoreEnd ? 
+                            '\x0' : 
+                            throw new FormatException("Unexpected end of text");
             }
 
             void skipWhitespace() {

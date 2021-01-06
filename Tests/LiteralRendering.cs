@@ -53,8 +53,8 @@ namespace Tests {
             var closureType = ((MemberExpression)expr.Body).Expression.Type;
 
             // out variables
-            int i = 0;
-            int j = 0;
+            var i = 0;
+            var j = 0;
 
             // populate with reflection test data
             new List<(object?, (string csharp, string vb))>() {
