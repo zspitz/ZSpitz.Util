@@ -362,10 +362,10 @@ namespace ZSpitz.Util {
                 process.StartInfo.RedirectStandardError
             );
             if (redirectOut) {
-                process.OutputDataReceived += (s, ea) => output += ea.Data + Environment.NewLine;
+                process.OutputDataReceived += (s, ea) => output += ea.Data + "\n";
             }
             if (redirectErr) {
-                process.ErrorDataReceived += (s, ea) => error += ea.Data + Environment.NewLine;
+                process.ErrorDataReceived += (s, ea) => error += ea.Data + "\n";
             }
 
             if (!process.Start()) {
@@ -393,10 +393,10 @@ namespace ZSpitz.Util {
             process.Exited += (s, e) => tcs.SetResult(new ProcessResult(process.ExitCode, output, error));
 
             if (redirectOut) {
-                process.OutputDataReceived += (s, ea) => output += ea.Data + Environment.NewLine;
+                process.OutputDataReceived += (s, ea) => output += ea.Data + "\n";
             }
             if (redirectErr) {
-                process.ErrorDataReceived += (s, ea) => error += ea.Data + Environment.NewLine;
+                process.ErrorDataReceived += (s, ea) => error += ea.Data + "\n";
             }
 
             if (!process.Start()) {
