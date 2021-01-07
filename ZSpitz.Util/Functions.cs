@@ -362,15 +362,16 @@ namespace ZSpitz.Util {
                 process.StartInfo.RedirectStandardError
             );
             if (redirectOut) {
-                process.OutputDataReceived += (s, ea) => output += ea.Data;
+                process.OutputDataReceived += (s, ea) => output += ea.Data + Environment.NewLine;
             }
             if (redirectErr) {
-                process.ErrorDataReceived += (s, ea) => error += ea.Data;
+                process.ErrorDataReceived += (s, ea) => error += ea.Data + Environment.NewLine;
             }
 
             if (!process.Start()) {
                 throw new InvalidOperationException();
             };
+
             if (redirectOut) { process.BeginOutputReadLine(); }
             if (redirectErr) { process.BeginErrorReadLine(); }
             if (!input.IsNullOrEmpty()) {
@@ -388,12 +389,14 @@ namespace ZSpitz.Util {
                 process.StartInfo.RedirectStandardOutput,
                 process.StartInfo.RedirectStandardError
             );
+
             process.Exited += (s, e) => tcs.SetResult(new ProcessResult(process.ExitCode, output, error));
+
             if (redirectOut) {
-                process.OutputDataReceived += (s, ea) => output += ea.Data;
+                process.OutputDataReceived += (s, ea) => output += ea.Data + Environment.NewLine;
             }
             if (redirectErr) {
-                process.ErrorDataReceived += (s, ea) => error += ea.Data;
+                process.ErrorDataReceived += (s, ea) => error += ea.Data + Environment.NewLine;
             }
 
             if (!process.Start()) {
@@ -401,13 +404,8 @@ namespace ZSpitz.Util {
                 throw new InvalidOperationException();
             }
 
-            if (redirectOut) {
-                process.BeginOutputReadLine();
-            }
-            if (redirectErr) {
-                process.BeginErrorReadLine();
-            }
-            
+            if (redirectOut) {process.BeginOutputReadLine();}
+            if (redirectErr) {process.BeginErrorReadLine();}
             if (!input.IsNullOrEmpty()) {
                 process.StandardInput.WriteLine(input);
                 process.StandardInput.Close();
