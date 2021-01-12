@@ -80,7 +80,7 @@ namespace ZSpitz.Util {
 
         // https://stackoverflow.com/a/27097569
         public static T? Unanimous<T>(this IEnumerable<T> src, T other = default) {
-            bool initialized = false;
+            var initialized = false;
             T first = default;
             foreach (var item in src) {
                 if (!initialized) { 
@@ -93,5 +93,7 @@ namespace ZSpitz.Util {
             if (initialized) { return first!; }
             return other;
         }
+
+        public static IEnumerable<T> ConcatOne<T>(this IEnumerable<T> src, T element) => src.Concat(Enumerable.Repeat(element, 1));
     }
 }
