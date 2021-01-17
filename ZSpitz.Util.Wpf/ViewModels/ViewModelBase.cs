@@ -29,5 +29,8 @@ namespace ZSpitz.Util.Wpf {
             setter?.Invoke();
             Invoke(name);
         }
+
+        ///<summary>Raise change notification without checking for equality first.</summary>
+        protected void NotifyChanged([CallerMemberName] string? name = null) => Invoke(name);
     }
 }

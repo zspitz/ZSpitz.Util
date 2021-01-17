@@ -28,7 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="MultiSelectTreeView" Version="1.0.9" />
-    <PackageReference Include="ZSpitz.Util" Version="0.1.50" />
+    <PackageReference Include="ZSpitz.Util" Version="0.1.93" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 
