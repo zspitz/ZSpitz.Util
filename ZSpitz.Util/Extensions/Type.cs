@@ -7,6 +7,7 @@ using System.Runtime.CompilerServices;
 using static System.Linq.Enumerable;
 using static ZSpitz.Util.Language;
 using static ZSpitz.Util.Functions;
+using System.Diagnostics.CodeAnalysis;
 
 namespace ZSpitz.Util {
     public static class TypeExtensions {
@@ -100,7 +101,9 @@ namespace ZSpitz.Util {
             {typeof(ushort), "UShort"}
         };
 
-        public static string FriendlyName(this Type type, OneOf<string, Language?> languageArg) {
+        public static string? FriendlyName([NotNullIfNotNull("type")] this Type? type, OneOf<string, Language?> languageArg) {
+            if (type is null) { return null; }
+
             var language = languageArg.ResolveLanguage();
 
             if (language.NotIn(CSharp, VisualBasic)) { return type.Name; }
