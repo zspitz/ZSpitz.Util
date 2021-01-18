@@ -17,7 +17,7 @@ namespace ZSpitz.Util {
         private static readonly Regex whitespace = new Regex(@"\s+");
         public static string ReplaceWhitespace(this string s, string replacement = "") => whitespace.Replace(s, replacement);
         public static bool ContainsAny(this string s, params string[] testStrings) => testStrings.Any(x => s.Contains(x));
-        public static void AppendTo(this string s, StringBuilder sb) => sb.Append(s);
+        public static void AppendTo(this string? s, StringBuilder sb) => sb.Append(s);
 
         // https://stackoverflow.com/a/14502246/111794
         private static string ToCSharpLiteral(this string input) {
@@ -63,7 +63,7 @@ namespace ZSpitz.Util {
                 _ => throw new ArgumentException("Invalid language")
             };
 
-        public static void AppendLineTo(this string s, StringBuilder sb, int indentationLevel = 0) {
+        public static void AppendLineTo(this string? s, StringBuilder sb, int indentationLevel = 0) {
             s = (s ?? "").TrimEnd();
             var toAppend = new string(' ', indentationLevel * 4) + s.TrimEnd();
             sb.AppendLine(toAppend);
