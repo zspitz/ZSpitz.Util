@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -14,7 +15,7 @@ namespace ZSpitz.Util {
                     .SelectMany(x => new[] { x.GetMethod, x.SetMethod })
             );
 
-        public static bool IsIndexerMethod(this MethodInfo mi, out PropertyInfo? pi) {
+        public static bool IsIndexerMethod(this MethodInfo mi, [NotNullWhen(true)] out PropertyInfo? pi) {
             var indexerMethods = mi.ReflectedType!
                 .GetIndexers(true)
                 .SelectMany(x => new[] {
