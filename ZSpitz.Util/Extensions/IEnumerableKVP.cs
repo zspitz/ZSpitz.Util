@@ -5,7 +5,7 @@ using System.Linq;
 namespace ZSpitz.Util {
     public static class IEnumerableKVPExtensions {
         public static void AddRangeTo<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> toAdd, Dictionary<TKey, TValue> dict) where TKey : notnull => 
-            toAdd.ForEach(kvp => dict.Add(kvp.Key, kvp.Value));
+            dict.AddRange(toAdd);
         public static IEnumerable<TValue> Values<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> src) => 
             src.Select(x => x.Value);
         public static IEnumerable<TResult> SelectKVP<TKey, TValue, TResult>(this IEnumerable<KeyValuePair<TKey, TValue>> src, Func<TKey, TValue, TResult> selector) => 
@@ -20,5 +20,9 @@ namespace ZSpitz.Util {
             src.ToDictionary(x => x.Key, x => x.Value);
         public static IEnumerable<KeyValuePair<TKey, TValue>> ForEachKVP<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> src, Action<TKey, TValue> action) =>
             src.ForEach(kvp => action(kvp.Key, kvp.Value));
+        public static string JoinedKVP<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> src, Func<TKey, TValue, string> selector) =>
+            src.SelectKVP(selector).Joined();
+        public static string JoinedKVP<TKey, TValue>(this IEnumerable<KeyValuePair<TKey, TValue>> src, string delimiter, Func<TKey, TValue, string> selector) =>
+            src.SelectKVP(selector).Joined(delimiter);
     }
 }
