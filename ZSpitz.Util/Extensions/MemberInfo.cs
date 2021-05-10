@@ -11,8 +11,8 @@ namespace ZSpitz.Util {
 
         private static (bool isPublic, bool isStatic) bindingFlagsInfo(params MethodBase[] methods) {
             if (methods.None()) { throw new ArgumentException($"'{nameof(methods)} cannot be empty."); }
-            bool isStatic = false;
-            bool isPublic = false;
+            var isStatic = false;
+            var isPublic = false;
             methods.Where(x => x is { }).ForEach((x, index) => {
                 if (index == 0) { isStatic = x.IsStatic; }
                 if (x.IsPublic) {
@@ -38,7 +38,7 @@ namespace ZSpitz.Util {
                 (isStatic ? BindingFlags.Static : BindingFlags.Instance);
         }
 
-        private static HashSet<BindingFlags> defaultLookups = new HashSet<BindingFlags> {
+        private static readonly HashSet<BindingFlags> defaultLookups = new() {
             BindingFlags.Public | BindingFlags.Instance,
             BindingFlags.Public | BindingFlags.Static
         };
@@ -157,10 +157,9 @@ namespace ZSpitz.Util {
 
             var method = reflectedType.GetType().GetMethod(methodName, parameters.Select(x => x.type).ToArray());
             var values = parameters.Select(x => x.value).ToArray();
-            if (method is { }) {
-                return (method, values);
-            }
-            return (methodName, values);
+            return method is { } ? 
+                (method, values) : 
+                (methodName, values);
         }
     }
 }

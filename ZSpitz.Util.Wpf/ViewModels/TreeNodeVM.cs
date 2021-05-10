@@ -101,11 +101,7 @@ namespace ZSpitz.Util.Wpf {
 
         public void ApplyFilter(Func<TData, bool> predicate) {
             var matched = predicate(Data);
-            if (matched) {
-                FilterState = Matched;
-            } else {
-                FilterState = NotMatched;
-            }
+            FilterState = matched ? Matched : NotMatched;
 
             Children.ForEach(x => x.ApplyFilter(predicate));
         }

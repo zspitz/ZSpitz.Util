@@ -6,10 +6,10 @@ using System.Linq;
 
 namespace ZSpitz.Util {
     public static class IEnumerableTExtensions {
-        public static bool None<T>(this IEnumerable<T> src, Func<T, bool>? predicate = null) {
-            if (predicate != null) { return !src.Any(predicate); }
-            return !src.Any();
-        }
+        public static bool None<T>(this IEnumerable<T> src, Func<T, bool>? predicate = null) =>
+            predicate is null ?
+                !src.Any() :
+                !src.Any(predicate);
 
         public static IEnumerable<T> ForEach<T>(this IEnumerable<T> src, Action<T> action) {
             foreach (var item in src) {
@@ -28,20 +28,17 @@ namespace ZSpitz.Util {
 
         public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<(TKey, TValue)> src) where TKey : notnull => src.ToDictionary(t => t.Item1, t => t.Item2);
 
-        public static string Joined<T>(this IEnumerable<T> source, string delimiter = ",", Func<T, string>? selector = null) {
-            if (source == null) { return ""; }
-            if (selector == null) { return string.Join(delimiter, source); }
-            return string.Join(delimiter, source.Select(selector));
-        }
-        public static string Joined<T>(this IEnumerable<T> source, string delimiter, Func<T, int, string> selector) {
-            if (source == null) { return ""; }
-            if (selector == null) { return string.Join(delimiter, source); }
-            return string.Join(delimiter, source.Select(selector));
-        }
+        public static string Joined<T>(this IEnumerable<T> source, string delimiter = ",", Func<T, string>? selector = null) =>
+            source is null ? "" :
+            selector is null ? string.Join(delimiter, source) :
+            string.Join(delimiter, source.Select(selector));
 
-#if !NET5_0
+        public static string Joined<T>(this IEnumerable<T> source, string delimiter, Func<T, int, string> selector) =>
+            source is null ? "" :
+            selector is null ? string.Join(delimiter, source) :
+            string.Join(delimiter, source.Select(selector));
+
         public static IEnumerable<(TFirst, TSecond)> Zip<TFirst, TSecond>(this IEnumerable<TFirst> first, IEnumerable<TSecond> second) => first.Zip(second, (x, y) => (x, y));
-#endif
 
         public static IEnumerable<T> Ordered<T>(this IEnumerable<T> src) => src.OrderBy(x => x);
 
@@ -64,11 +61,11 @@ namespace ZSpitz.Util {
             return ret;
         }
 
-        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> src, IEqualityComparer<T>? comparer = null) => new HashSet<T>(src, comparer);
+        public static HashSet<T> ToHashSet<T>(this IEnumerable<T> src, IEqualityComparer<T>? comparer = null) => new(src, comparer);
 
         public static IEnumerable<T> SelectMany<T>(this IEnumerable<IEnumerable<T>> src) => src.SelectMany(x => x);
 
-        public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(this IEnumerable<T> src) => new ReadOnlyCollection<T>(src.ToList());
+        public static ReadOnlyCollection<T> ToReadOnlyCollection<T>(this IEnumerable<T> src) => new(src.ToList());
 
         // https://stackoverflow.com/a/18304070
         public static bool IsUnique<T>(this IEnumerable<T> src) {
@@ -79,9 +76,9 @@ namespace ZSpitz.Util {
         public static IEnumerable<T> Select<T>(this IEnumerable<T> src) => src.Select(x => x);
 
         // https://stackoverflow.com/a/27097569
-        public static T? Unanimous<T>(this IEnumerable<T> src, T other = default) {
+        public static T? Unanimous<T>(this IEnumerable<T> src, T? other = default) {
             var initialized = false;
-            T first = default;
+            T? first = default;
             foreach (var item in src) {
                 if (!initialized) { 
                     first = item;
@@ -90,8 +87,7 @@ namespace ZSpitz.Util {
                     return other;
                 }
             }
-            if (initialized) { return first!; }
-            return other;
+            return initialized ? first : other;
         }
 
         public static IEnumerable<T> ConcatOne<T>(this IEnumerable<T> src, T element) => src.Concat(Enumerable.Repeat(element, 1));

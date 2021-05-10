@@ -18,7 +18,7 @@ namespace ZSpitz.Util {
             return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
-        private static readonly Dictionary<Type, bool> numericTypes = new Dictionary<Type, bool> {
+        private static readonly Dictionary<Type, bool> numericTypes = new() {
             [typeof(byte)] = true,
             [typeof(short)] = true,
             [typeof(int)] = true,
@@ -63,7 +63,7 @@ namespace ZSpitz.Util {
         public static bool IsVBAnonymousDelegate(this Type type) =>
             type.HasAttribute<CompilerGeneratedAttribute>() && type.Name.Contains("VB$AnonymousDelegate");
 
-        private static readonly Dictionary<Type, string> csharpKeywordTypes = new Dictionary<Type, string> {
+        private static readonly Dictionary<Type, string> csharpKeywordTypes = new() {
             {typeof(bool), "bool"},
             {typeof(byte), "byte"},
             {typeof(sbyte), "sbyte"},
@@ -82,7 +82,7 @@ namespace ZSpitz.Util {
             {typeof(void), "void" }
         };
 
-        private static readonly Dictionary<Type, string> vbKeywordTypes = new Dictionary<Type, string> {
+        private static readonly Dictionary<Type, string> vbKeywordTypes = new() {
             {typeof(bool), "Boolean"},
             {typeof(byte), "Byte"},
             {typeof(char), "Char"},
@@ -173,7 +173,7 @@ namespace ZSpitz.Util {
             return nongenericName;
         }
 
-        private static readonly Dictionary<Type, bool> tupleTypes = new Dictionary<Type, bool> {
+        private static readonly Dictionary<Type, bool> tupleTypes = new() {
             { typeof(ValueTuple<>), true },
             {typeof(ValueTuple<,>), true },
             {typeof(ValueTuple<,,>), true },

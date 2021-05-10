@@ -8,7 +8,7 @@ using static ZSpitz.Util.Language;
 namespace ZSpitz.Util {
     public static class ExpressionExtensions {
         public static object? ExtractValue(this Expression expr) {
-            if (!(expr is LambdaExpression lambda)) {
+            if (expr is not LambdaExpression lambda) {
                 lambda = Lambda(expr);
             }
             return lambda.Compile().DynamicInvoke();

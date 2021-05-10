@@ -14,13 +14,13 @@ namespace ZSpitz.Util {
         public static bool IsNullOrEmpty([NotNullWhen(false)] this string? s) => string.IsNullOrEmpty(s);
         public static bool ContainsWhitespace(this string s) => s.Any(c => char.IsWhiteSpace(c));
 
-        private static readonly Regex whitespace = new Regex(@"\s+");
+        private static readonly Regex whitespace = new(@"\s+");
         public static string ReplaceWhitespace(this string s, string replacement = "") => whitespace.Replace(s, replacement);
         public static bool ContainsAny(this string s, params string[] testStrings) => testStrings.Any(x => s.Contains(x));
         public static void AppendTo(this string? s, StringBuilder sb) => sb.Append(s);
 
         // https://stackoverflow.com/a/14502246/111794
-        private static string ToCSharpLiteral(this string input) {
+        private static string toCSharpLiteral(this string input) {
             var literal = new StringBuilder("\"", input.Length + 2);
             foreach (var c in input) {
                 switch (c) {
@@ -45,7 +45,7 @@ namespace ZSpitz.Util {
                         break;
                 }
             }
-            literal.Append("\"");
+            literal.Append('\"');
             return literal.ToString();
         }
 
@@ -58,7 +58,7 @@ namespace ZSpitz.Util {
         public static string ToVerbatimString(this string s, OneOf<string, Language?> langArg) =>
             langArg.ResolveLanguage() switch
             {
-                CSharp => s.ToCSharpLiteral(),
+                CSharp => s.toCSharpLiteral(),
                 VisualBasic => $"\"{s.Replace("\"", "\"\"")}\"",
                 _ => throw new ArgumentException("Invalid language")
             };
@@ -69,11 +69,11 @@ namespace ZSpitz.Util {
             sb.AppendLine(toAppend);
         }
 
-        [return:NotNullIfNotNull("s")]
-        public static string? ToCamelCase(this string? s) {
-            if (s == null || s.Length == 0) { return s; }
-            return char.ToLowerInvariant(s[0]) + s.Substring(1);
-        }
+        [return: NotNullIfNotNull("s")]
+        public static string? ToCamelCase(this string? s) => 
+            s == null || s.Length == 0 ? 
+                s : 
+                char.ToLowerInvariant(s[0]) + s.Substring(1);
 
         public static bool EndsWithAny(this string s, params string[] testStrings) => testStrings.Any(x => s.EndsWith(x));
         public static bool EndsWithAny(this string s, IEnumerable<string> testStrings) => testStrings.Any(x => s.EndsWith(x));
