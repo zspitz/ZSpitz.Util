@@ -9,7 +9,7 @@ using static ZSpitz.Util.Wpf.FilterStates;
 
 namespace ZSpitz.Util.Wpf {
     public class TreeNodeVM<TData> : TreeNodeBase<TData, TreeNodeVM<TData>, ReadOnlyObservableCollection<TreeNodeVM<TData>>>, INotifyPropertyChanged {
-        private readonly ObservableCollection<TreeNodeVM<TData>> oc = new ObservableCollection<TreeNodeVM<TData>>();
+        private readonly ObservableCollection<TreeNodeVM<TData>> oc = new();
         protected override (IList<TreeNodeVM<TData>> innerCollection, ReadOnlyObservableCollection<TreeNodeVM<TData>> collectionWrapper) InitWith() {
             var roc = new ReadOnlyObservableCollection<TreeNodeVM<TData>>(oc);
             return (oc, roc);
@@ -18,12 +18,10 @@ namespace ZSpitz.Util.Wpf {
         public TreeNodeVM() : this(default!, default) { }
 
         public TreeNodeVM(TData data = default, IEnumerable<TData>? children = default) : base(data, children) {
-            if (Children.None()) {
-                IsSelected = false;
-            } else {
-                IsSelected = Children.Select(x => x.IsSelected).Unanimous();
-            }
-            
+            IsSelected =
+                Children.Any() ? Children.Select(x => x.IsSelected).Unanimous() :
+                false;
+
             oc.CollectionChanged += (s, e) => {
                 IsSelected = Children.Select(x => x.IsSelected).Unanimous();
                 if (FilterState == DescendantMatched && Children.None(x => x.FilterState.In(Matched, DescendantMatched))) {

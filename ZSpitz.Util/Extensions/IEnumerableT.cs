@@ -39,6 +39,7 @@ namespace ZSpitz.Util {
             string.Join(delimiter, source.Select(selector));
 
         public static IEnumerable<(TFirst, TSecond)> ZipT<TFirst, TSecond>(this IEnumerable<TFirst> first, IEnumerable<TSecond> second) => first.Zip(second, (x, y) => (x, y));
+        public static IEnumerable<(T, int)> WithIndex<T>(this IEnumerable<T> src) => src.Select((x,index) => (x,index));
 
         public static IEnumerable<T> Ordered<T>(this IEnumerable<T> src) => src.OrderBy(x => x);
 
