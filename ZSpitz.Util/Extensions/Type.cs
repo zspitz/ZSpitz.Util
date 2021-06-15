@@ -157,7 +157,7 @@ namespace ZSpitz.Util {
             }
 
             var args = type.GetGenericArguments();
-            var parts = type.GetGenericArguments().Joined(", ", t => t.FriendlyName(language));
+            var parts = type.GetGenericArguments().Joined(", ", t => t.FriendlyName(language)!);
             var nongenericName = type.NonGenericName();
             return language == CSharp ?
                 $"{nongenericName}<{parts}>" :

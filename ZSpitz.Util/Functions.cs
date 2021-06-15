@@ -299,7 +299,7 @@ namespace ZSpitz.Util {
             }
         }
 
-        public static KeyValuePair<TKey, TValue> KVP<TKey, TValue>(TKey key, TValue value) => new KeyValuePair<TKey, TValue>(key, value);
+        public static KeyValuePair<TKey, TValue> KVP<TKey, TValue>(TKey key, TValue value) => new(key, value);
 
         public static bool IsReferenceComparison(ExpressionType nodeType, Expression left, Expression right, bool hasMethod) =>
             (nodeType == ExpressionType.Equal || nodeType == ExpressionType.NotEqual) &&
@@ -308,7 +308,7 @@ namespace ZSpitz.Util {
             !right.Type.IsValueType;
 
         // TODO consider using Pather for this
-        static readonly Regex re = new Regex(@"(?:^|\.)(\w+)(?:\[(\d+)\])?");
+        static readonly Regex re = new(@"(?:^|\.)(\w+)(?:\[(\d+)\])?");
         public static object? ResolvePath(object? o, string path) {
             // note that we want to have a NullReferenceException if any parts of the path (except the last one) resolve to null
             foreach (var (propertyName, index) in re.Matches(path).Cast<Match>()) {
@@ -349,7 +349,9 @@ namespace ZSpitz.Util {
         public static object MakeOldTuple(params object[] elements) => MakeTuple(false, elements);
 
 #if NET452
+#pragma warning disable IDE1006 // Naming Styles
         private static class emptyArray<T> {
+#pragma warning restore IDE1006 // Naming Styles
             public static readonly T[] Value = new T[0];
         }
         public static T[] EmptyArray<T>() => emptyArray<T>.Value;

@@ -10,6 +10,13 @@ namespace Tests {
             }
             return ret;
         }
+        internal static TheoryData<T1, T2> ToTheoryData<T1, T2>(this IEnumerable<(T1, T2)> src) {
+            var ret = new TheoryData<T1, T2>();
+            foreach (var (a, b) in src) {
+                ret.Add(a, b);
+            }
+            return ret;
+        }
         internal static TheoryData<T1, T2, T3> ToTheoryData<T1, T2, T3>(this IEnumerable<(T1, T2, T3)> src) {
             var ret = new TheoryData<T1, T2, T3>();
             foreach (var (a, b, c) in src) {
