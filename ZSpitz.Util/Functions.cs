@@ -348,13 +348,16 @@ namespace ZSpitz.Util {
         public static object MakeValueTuple(params object[] elements) => MakeTuple(true, elements);
         public static object MakeOldTuple(params object[] elements) => MakeTuple(false, elements);
 
+        public static T[] EmptyArray<T>() =>
 #if NET452
+            emptyArray<T>.Value;
 #pragma warning disable IDE1006 // Naming Styles
         private static class emptyArray<T> {
 #pragma warning restore IDE1006 // Naming Styles
             public static readonly T[] Value = new T[0];
         }
-        public static T[] EmptyArray<T>() => emptyArray<T>.Value;
+#else
+            Array.Empty<T>();
 #endif
 
         public static ProcessResult RunProcess(Process process, string input = "") {
