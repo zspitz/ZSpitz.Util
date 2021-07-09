@@ -29,5 +29,6 @@ namespace ZSpitz.Util {
         public static bool AllT<T1, T2>(this IEnumerable<(T1, T2)> src, Func<T1, T2, bool> predicate) => src.All(x => predicate(x.Item1, x.Item2));
 
         public static IEnumerable<(T1, T2, int)> WithIndex<T1, T2>(this IEnumerable<(T1, T2)> src) => src.Select((x, index) => (x.Item1, x.Item2, index));
+        public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<(TKey, TValue)> src) => src.ToDictionary(x => x.Item1, x => x.Item2);
     }
 }
