@@ -50,8 +50,9 @@ namespace ZSpitz.Util {
         /// (unlike the standard SingleOrDefault, which will throw an exception on multiple elements).
         /// </summary>
         [return: MaybeNull]
-        public static T SingleOrDefaultExt<T>(this IEnumerable<T> src) {
+        public static T SingleOrDefaultExt<T>(this IEnumerable<T> src, Func<T, bool>? predicate = null) {
             if (src == null) { return default!; }
+            if (predicate != null) { src = src.Where(predicate); }
             T ret = default!;
             var counter = 0;
             foreach (var item in src.Take(2)) {
