@@ -17,7 +17,8 @@ namespace ZSpitz.Util {
         private static readonly Regex whitespace = new(@"\s+");
         public static string ReplaceWhitespace(this string s, string replacement = "") => whitespace.Replace(s, replacement);
         public static bool ContainsAny(this string s, params string[] testStrings) => testStrings.Any(x => s.Contains(x));
-        public static bool StartsWithAny(this string s, params string[] testStrings) => testStrings.Any(x => s.StartsWith(x, StringComparison.InvariantCulture));
+        public static bool StartsWithAny(this string s, params string[] testStrings) => testStrings.Any(x => s.StartsWith(x));
+        public static bool StartsWithAny(this string s, StringComparison comparison, params string[] testStrings) => testStrings.Any(x => s.StartsWith(x, comparison));
         public static void AppendTo(this string? s, StringBuilder sb) => sb.Append(s);
 
         // https://stackoverflow.com/a/14502246/111794
