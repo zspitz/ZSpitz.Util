@@ -13,10 +13,9 @@ namespace ZSpitz.Util {
     public static class TypeExtensions {
         public static Type UnderlyingIfNullable(this Type type) => Nullable.GetUnderlyingType(type) ?? type;
 
-        public static bool IsNullable(this Type t, bool orReferenceType = false) {
-            if (orReferenceType && !t.IsValueType) { return true; }
-            return t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>);
-        }
+        public static bool IsNullable(this Type t, bool orReferenceType = false) => 
+            orReferenceType && !t.IsValueType || 
+            t.IsGenericType && t.GetGenericTypeDefinition() == typeof(Nullable<>);
 
         private static readonly Dictionary<Type, bool> numericTypes = new() {
             [typeof(byte)] = true,
@@ -251,11 +250,10 @@ namespace ZSpitz.Util {
             }
 
             // type is IEnumerable
-            if (IsIEnum(type) || type.GetInterfaces().Any(IsIEnum)) {
-                return typeof(object);
-            }
-
-            return null;
+            return
+                IsIEnum(type) || type.GetInterfaces().Any(IsIEnum) ? 
+                    typeof(object) : 
+                    null;
 
             static bool IsIEnum(Type t) => t == typeof(System.Collections.IEnumerable);
             static bool ImplIEnumT(Type t) => t.IsGenericType && t.GetGenericTypeDefinition() == typeof(IEnumerable<>);
@@ -284,13 +282,11 @@ namespace ZSpitz.Util {
                     sourceType;
         }
 
-        public static bool ContainsType(this Type t, Type value) {
-            if (t == value) { return true; }
-            if (!t.IsGenericType || t.IsGenericTypeDefinition) { return false; }
-            return
-                t.GetGenericTypeDefinition() == value ||
-                t.GetGenericArguments().Any(x => x.ContainsType(value));
-        }
+        public static bool ContainsType(this Type t, Type value) =>
+            t == value || 
+                t.IsGenericType &&
+                !t.IsGenericTypeDefinition &&
+                (t.GetGenericTypeDefinition() == value || t.GetGenericArguments().Any(x => x.ContainsType(value)));
 
         private static readonly Dictionary<Type, Type[]> builtinImplicitConversions = new[] {
             (typeof(sbyte), new [] {
