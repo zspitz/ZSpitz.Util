@@ -17,6 +17,7 @@ namespace ZSpitz.Util {
         private static readonly Regex whitespace = new(@"\s+");
         public static string ReplaceWhitespace(this string s, string replacement = "") => whitespace.Replace(s, replacement);
         public static bool ContainsAny(this string s, params string[] testStrings) => testStrings.Any(x => s.Contains(x));
+        public static bool StartsWithAny(this string s, params string[] testStrings) => testStrings.Any(x => s.StartsWith(x, StringComparison.InvariantCulture));
         public static void AppendTo(this string? s, StringBuilder sb) => sb.Append(s);
 
         // https://stackoverflow.com/a/14502246/111794
@@ -73,7 +74,7 @@ namespace ZSpitz.Util {
         public static string? ToCamelCase(this string? s) => 
             s == null || s.Length == 0 ? 
                 s : 
-                char.ToLowerInvariant(s[0]) + s.Substring(1);
+                char.ToLowerInvariant(s[0]) + s[1..];
 
         public static bool EndsWithAny(this string s, params string[] testStrings) => testStrings.Any(x => s.EndsWith(x));
         public static bool EndsWithAny(this string s, IEnumerable<string> testStrings) => testStrings.Any(x => s.EndsWith(x));
