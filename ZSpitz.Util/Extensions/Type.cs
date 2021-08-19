@@ -363,6 +363,6 @@ namespace ZSpitz.Util {
                 Array.Empty<Type>();
 #endif
 
-        public static T CreateInstance<T>(this Type type, object[]? args = null) => (T)Activator.CreateInstance(type, args);
+        public static T CreateInstance<T>(this Type type, object[]? args = null) => (T)Activator.CreateInstance(type, args)!;
     }
 }

@@ -8,7 +8,7 @@ namespace ZSpitz.Util {
     public static class IEnumerableExtensions {
         public static bool Any(this IEnumerable src) {
             if (src == null) { return false; }
-            foreach (var item in src) {
+            foreach (var _ in src) {
                 return true;
             }
             return false;
