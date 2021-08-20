@@ -6,16 +6,26 @@ using static ZSpitz.Util.Wpf.Functions;
 namespace ZSpitz.Util.Wpf {
     public class BindableSelectionTextBox : TextBox {
         public static readonly DependencyProperty BindableSelectionStartProperty =
-            DPRegister<int, BindableSelectionTextBox>(0, BindsTwoWayByDefault, OnBindableSelectionStartChanged);
+            DPRegister<int, BindableSelectionTextBox>(0, BindsTwoWayByDefault, (textBox, newValue, oldValue) => {
+                if (!textBox.changeFromUI) {
+                    textBox.SelectionStart = newValue;
+                } else {
+                    textBox.changeFromUI = false;
+                }
+            });
 
         public static readonly DependencyProperty BindableSelectionLengthProperty =
-            DPRegister<int, BindableSelectionTextBox>(0, BindsTwoWayByDefault, OnBindableSelectionLengthChanged);
+            DPRegister<int, BindableSelectionTextBox>(0, BindsTwoWayByDefault, (textBox, newValue, oldValue) => {
+                if (!textBox.changeFromUI) {
+                    textBox.SelectionLength = newValue;
+                } else {
+                    textBox.changeFromUI = false;
+                }
+            });
 
         private bool changeFromUI;
 
-        public BindableSelectionTextBox() : base() {
-            SelectionChanged += OnSelectionChanged;
-        }
+        public BindableSelectionTextBox() : base() => SelectionChanged += onSelectionChanged;
 
         public int BindableSelectionStart {
             get => (int)GetValue(BindableSelectionStartProperty);
@@ -27,29 +37,7 @@ namespace ZSpitz.Util.Wpf {
             set => SetValue(BindableSelectionLengthProperty, value);
         }
 
-        private static void OnBindableSelectionStartChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args) {
-            var textBox = (dependencyObject as BindableSelectionTextBox)!;
-
-            if (!textBox.changeFromUI) {
-                int newValue = (int)args.NewValue;
-                textBox.SelectionStart = newValue;
-            } else {
-                textBox.changeFromUI = false;
-            }
-        }
-
-        private static void OnBindableSelectionLengthChanged(DependencyObject dependencyObject, DependencyPropertyChangedEventArgs args) {
-            var textBox = (dependencyObject as BindableSelectionTextBox)!;
-
-            if (!textBox.changeFromUI) {
-                int newValue = (int)args.NewValue;
-                textBox.SelectionLength = newValue;
-            } else {
-                textBox.changeFromUI = false;
-            }
-        }
-
-        private void OnSelectionChanged(object sender, RoutedEventArgs e) {
+        private void onSelectionChanged(object sender, RoutedEventArgs e) {
             if (BindableSelectionStart != SelectionStart) {
                 changeFromUI = true;
                 BindableSelectionStart = SelectionStart;

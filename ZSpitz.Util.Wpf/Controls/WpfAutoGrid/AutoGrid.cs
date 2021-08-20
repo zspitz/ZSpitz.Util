@@ -142,52 +142,6 @@ namespace ZSpitz.Util.Wpf {
         }
 
         /// <summary>
-        /// Handles the column count changed event
-        /// </summary>
-        public static void ColumnCountChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if ((int)e.NewValue < 0) { return; }
-            ((AutoGrid)d).buildColumnDefinitions();
-        }
-
-        /// <summary>
-        /// Handle the columns changed event
-        /// </summary>
-        public static void ColumnsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if ((string)e.NewValue == string.Empty) { return; }
-            ((AutoGrid)d).buildColumnDefinitions();
-        }
-
-        /// <summary>
-        /// Handle the fixed column width changed event
-        /// </summary>
-        public static void FixedColumnWidthChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            var grid = ((AutoGrid)d);
-
-            // add a default column if missing
-            if (grid.ColumnDefinitions.Count == 0)
-                grid.ColumnDefinitions.Add(new ColumnDefinition());
-
-            // set all existing columns to this width
-            for (int i = 0; i < grid.ColumnDefinitions.Count; i++)
-                grid.ColumnDefinitions[i].Width = (GridLength)e.NewValue;
-        }
-
-        /// <summary>
-        /// Handle the fixed row height changed event
-        /// </summary>
-        public static void FixedRowHeightChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            var grid = ((AutoGrid)d);
-
-            // add a default row if missing
-            if (grid.RowDefinitions.Count == 0)
-                grid.RowDefinitions.Add(new RowDefinition());
-
-            // set all existing rows to this height
-            for (int i = 0; i < grid.RowDefinitions.Count; i++)
-                grid.RowDefinitions[i].Height = (GridLength)e.NewValue;
-        }
-
-        /// <summary>
         /// Parse an array of grid lengths from comma delim text
         /// </summary>
         public static GridLength[] Parse(string text) => text.Split(',').Select(str => {
@@ -223,21 +177,6 @@ namespace ZSpitz.Util.Wpf {
                      lengths.Length > index ? lengths[index] : defaultRowHeight
             }).AddRangeTo(RowDefinitions);
         }
-        /// <summary>
-        /// Handles the row count changed event
-        /// </summary>
-        public static void RowCountChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if ((int)e.NewValue < 0) { return; }
-            ((AutoGrid)d).buildRowDefinitions();
-        }
-
-        /// <summary>
-        /// Handle the rows changed event
-        /// </summary>
-        public static void RowsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            if ((string)e.NewValue == string.Empty) { return; }
-            ((AutoGrid)d).buildRowDefinitions();
-        }
 
         private static void propogateToChildren<T>(AutoGrid grid, T? currentValue, DependencyProperty dp) where T : struct {
             foreach (var child in grid.Children.Cast<UIElement>()) {
@@ -246,40 +185,9 @@ namespace ZSpitz.Util.Wpf {
         }
 
         /// <summary>
-        /// Called when [child horizontal alignment changed].
-        /// </summary>
-        private static void OnChildHorizontalAlignmentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            var grid = (AutoGrid)d;
-            propogateToChildren(grid, grid.ChildHorizontalAlignment, HorizontalAlignmentProperty);
-        }
-
-        /// <summary>
-        /// Called when [child layout changed].
-        /// </summary>
-        private static void OnChildMarginChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            var grid = (AutoGrid)d;
-            propogateToChildren(grid, grid.ChildMargin, MarginProperty);
-        }
-
-        /// <summary>
-        /// Called when [child vertical alignment changed].
-        /// </summary>
-        private static void OnChildVerticalAlignmentChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-            var grid = (AutoGrid)d;
-            propogateToChildren(grid, grid.ChildVerticalAlignment, VerticalAlignmentProperty);
-        }
-
-        /// <summary>
-        /// Handled the redraw properties changed event
-        /// </summary>
-        private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e) {
-
-        }
-
-        /// <summary>
         /// Apply child margins and layout effects such as alignment
         /// </summary>
-        private void ApplyChildLayout(UIElement child) {
+        private void applyChildLayout(UIElement child) {
             if (ChildMargin != null) {
                 child.SetIfDefault(MarginProperty, ChildMargin.Value);
             }
@@ -292,14 +200,9 @@ namespace ZSpitz.Util.Wpf {
         }
 
         /// <summary>
-        /// Clamp a value to its maximum.
-        /// </summary>
-        private int Clamp(int value, int max) => (value > max) ? max : value;
-
-        /// <summary>
         /// Perform the grid layout of row and column indexes
         /// </summary>
-        private void PerformLayout() {
+        private void performLayout() {
             var fillRowFirst = Orientation == Orientation.Horizontal;
             buildRowDefinitions();
             buildColumnDefinitions();
@@ -307,12 +210,11 @@ namespace ZSpitz.Util.Wpf {
             var rowCount = RowDefinitions.Count;
             var colCount = ColumnDefinitions.Count;
 
-            if (rowCount == 0 || colCount == 0)
-                return;
+            if (rowCount == 0 || colCount == 0) { return; }
 
             var position = 0;
             var skip = new HashSet<(int row, int col)>();
-            foreach (UIElement child in Children.Cast<UIElement>()) {
+            foreach (var child in Children.Cast<UIElement>()) {
                 var childIsCollapsed = child.Visibility == Visibility.Collapsed;
                 if (IsAutoIndexing && !childIsCollapsed) {
                     if (fillRowFirst) {
@@ -324,7 +226,7 @@ namespace ZSpitz.Util.Wpf {
                             col = position % colCount;
                         }
 
-                        if (row>=rowCount) {
+                        if (row >= rowCount) {
                             RowDefinitions.Add(new RowDefinition { Height = defaultRowHeight });
                             rowCount = RowDefinitions.Count;
                         }
@@ -334,19 +236,19 @@ namespace ZSpitz.Util.Wpf {
 
                         var skipCols = Range(col, GetColumnSpan(child)).ToArray();
                         var skipRows = Range(row, GetRowSpan(child)).ToArray();
-                        skipCols.SelectMany(col1 => skipRows.Select(row1 => (row1, col1))).Where(x => x!= (row,col)).AddRangeTo(skip);
+                        skipCols.SelectMany(col1 => skipRows.Select(row1 => (row1, col1))).Where(x => x != (row, col)).AddRangeTo(skip);
 
                         position += 1;
                     } else {
                         var row = position % rowCount;
                         var col = position / rowCount;
-                        while (skip.Contains((row,col))) {
+                        while (skip.Contains((row, col))) {
                             position++;
                             row = position % rowCount;
                             col = position / rowCount;
                         }
 
-                        if (col>=colCount) {
+                        if (col >= colCount) {
                             ColumnDefinitions.Add(new ColumnDefinition { Width = defaultColumnWidth });
                             colCount = ColumnDefinitions.Count;
                         }
@@ -362,27 +264,49 @@ namespace ZSpitz.Util.Wpf {
                     }
                 }
 
-                ApplyChildLayout(child);
+                applyChildLayout(child);
             }
         }
 
         public static readonly DependencyProperty ChildHorizontalAlignmentProperty =
-            DPRegister<HorizontalAlignment?, AutoGrid>(null, AffectsMeasure, OnChildHorizontalAlignmentChanged);
+            DPRegister<HorizontalAlignment?, AutoGrid>(null, AffectsMeasure,
+                (grid, _, _) => propogateToChildren(grid, grid.ChildHorizontalAlignment, HorizontalAlignmentProperty)
+            );
 
         public static readonly DependencyProperty ChildMarginProperty =
-            DPRegister<Thickness?, AutoGrid>(null, AffectsMeasure, OnChildMarginChanged);
+            DPRegister<Thickness?, AutoGrid>(null, AffectsMeasure,
+                (grid, _, _) => propogateToChildren(grid, grid.ChildMargin, MarginProperty)
+            );
 
         public static readonly DependencyProperty ChildVerticalAlignmentProperty =
-            DPRegister<VerticalAlignment?, AutoGrid>(null, AffectsMeasure, OnChildVerticalAlignmentChanged);
+            DPRegister<VerticalAlignment?, AutoGrid>(null, AffectsMeasure,
+                (grid, _, _) => propogateToChildren(grid, grid.ChildVerticalAlignment, VerticalAlignmentProperty)
+            );
 
         public static readonly DependencyProperty ColumnCountProperty =
-            DPRegisterAttached<int, AutoGrid>(0, AffectsMeasure, ColumnCountChanged);
+            DPRegisterAttached<int, AutoGrid>(0, AffectsMeasure, (grid, @new, _) => {
+                if (@new < 0) { return; }
+                grid.buildColumnDefinitions();
+            });
 
         public static readonly DependencyProperty ColumnsProperty =
-            DPRegisterAttached<string, AutoGrid>("", AffectsMeasure, ColumnsChanged);
+            DPRegisterAttached<string, AutoGrid>("", AffectsMeasure, (grid, @new, _) => {
+                if (@new == "") { return; }
+                grid.buildColumnDefinitions();
+            });
 
         public static readonly DependencyProperty ColumnWidthProperty =
-            DPRegisterAttached<GridLength, AutoGrid>(GridLength.Auto, AffectsMeasure, FixedColumnWidthChanged);
+            DPRegisterAttached<GridLength, AutoGrid>(GridLength.Auto, AffectsMeasure, (grid, @new, _) => {
+                // add a default column if missing
+                if (grid.ColumnDefinitions.Count == 0) {
+                    grid.ColumnDefinitions.Add(new ColumnDefinition());
+                }
+
+                // set all existing columns to this width
+                for (var i = 0; i < grid.ColumnDefinitions.Count; i++) {
+                    grid.ColumnDefinitions[i].Width = @new;
+                }
+            });
 
         public static readonly DependencyProperty IsAutoIndexingProperty =
             DPRegister<bool, AutoGrid>(true, AffectsMeasure);
@@ -391,13 +315,29 @@ namespace ZSpitz.Util.Wpf {
             DPRegister<Orientation, AutoGrid>(Orientation.Horizontal, AffectsMeasure);
 
         public static readonly DependencyProperty RowCountProperty =
-            DPRegisterAttached<int, AutoGrid>(1, AffectsMeasure, RowCountChanged);
+            DPRegisterAttached<int, AutoGrid>(1, AffectsMeasure, (grid, @new, _) => {
+                if (@new < 0) { return; }
+                grid.buildRowDefinitions();
+            });
 
         public static readonly DependencyProperty RowHeightProperty =
-            DPRegisterAttached<GridLength, AutoGrid>(GridLength.Auto, AffectsMeasure, FixedRowHeightChanged);
+            DPRegisterAttached<GridLength, AutoGrid>(GridLength.Auto, AffectsMeasure, (grid, @new, old) => {
+                // add a default row if missing
+                if (grid.RowDefinitions.Count == 0) {
+                    grid.RowDefinitions.Add(new RowDefinition());
+                }
+
+                // set all existing rows to this height
+                for (var i = 0; i < grid.RowDefinitions.Count; i++) {
+                    grid.RowDefinitions[i].Height = @new;
+                }
+            });
 
         public static readonly DependencyProperty RowsProperty =
-            DPRegisterAttached<string, AutoGrid>("", AffectsMeasure, RowsChanged);
+            DPRegisterAttached<string, AutoGrid>("", AffectsMeasure, (grid, @new, old) => {
+                if (@new == "") { return; }
+                grid.buildRowDefinitions();
+            });
 
         #region Overrides
 
@@ -409,7 +349,7 @@ namespace ZSpitz.Util.Wpf {
         /// 	<see cref="Size"/> that represents the required size to arrange child content.
         /// </returns>
         protected override Size MeasureOverride(Size constraint) {
-            PerformLayout();
+            performLayout();
             return base.MeasureOverride(constraint);
         }
 

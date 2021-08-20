@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.1;net472</TargetFrameworks>
+    <TargetFrameworks>netcoreapp3.1;net472;</TargetFrameworks>
     <UseWpf>true</UseWpf>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
@@ -28,7 +28,7 @@
 
   <ItemGroup>
     <PackageReference Include="MultiSelectTreeView" Version="1.0.9" />
-    <PackageReference Include="ZSpitz.Util" Version="0.1.93" />
+    <PackageReference Include="ZSpitz.Util" Version="0.1.115" />
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
   </ItemGroup>
 

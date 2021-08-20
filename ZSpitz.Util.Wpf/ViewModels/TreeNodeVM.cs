@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using ZSpitz.Util;
 using static System.Linq.Enumerable;
@@ -17,7 +18,7 @@ namespace ZSpitz.Util.Wpf {
 
         public TreeNodeVM() : this(default!, default) { }
 
-        public TreeNodeVM(TData data = default, IEnumerable<TData>? children = default) : base(data, children) {
+        public TreeNodeVM([AllowNull] TData data = default, IEnumerable<TData>? children = default) : base(data, children) {
             IsSelected =
                 Children.Any() ? Children.Select(x => x.IsSelected).Unanimous() :
                 false;
@@ -34,28 +35,23 @@ namespace ZSpitz.Util.Wpf {
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private bool? _isSelected;
+        private bool? isSelected;
         public bool? IsSelected {
-            get => _isSelected;
+            get => isSelected;
             set {
-                var old = _isSelected;
+                var old = isSelected;
                 if (old == value) { return; }
-                _isSelected = value;
+                isSelected = value;
 
                 if (value is { }) {
                     Children.ForEach(x => x.IsSelected = value);
                 }
 
                 if (Parent is { }) {
-                    if (value is null) {
-                        Parent.IsSelected = null;
-                    } else if (Parent.Children.Any(x => x.IsSelected != value)) {
-                        Parent.IsSelected = null;
-                    } else {
-                        Parent.IsSelected = value;
-                        // This doesn't cause a recursive loop (Parent.IsSelected sets IsSelected for each
-                        // child) because the underlying field has already been set on the child, and we exit early
-                    }
+                    Parent.IsSelected = 
+                        value is null || Parent.Children.Any(x => x.IsSelected != value) ? 
+                            null : 
+                            value;
                 }
 
                 // TODO If parent selection has been changed, parent notification will arrive before current node's notification
@@ -64,11 +60,11 @@ namespace ZSpitz.Util.Wpf {
             }
         }
 
-        private FilterStates? _filterState;
+        private FilterStates? filterState;
         public FilterStates? FilterState {
-            get => _filterState;
+            get => filterState;
             set {
-                if (_filterState == value) { return; }
+                if (filterState == value) { return; }
 
                 var hasMatchedDescendant = Children.Any(x => x.FilterState.In(Matched, DescendantMatched));
 
@@ -77,10 +73,10 @@ namespace ZSpitz.Util.Wpf {
                 } else if (value == DescendantMatched && !hasMatchedDescendant) {
                     value = NotMatched;
                 }
-                if (_filterState == value) { return; }
+                if (filterState == value) { return; }
 
-                var old = _filterState;
-                _filterState = value;
+                var old = filterState;
+                filterState = value;
 
                 // Only overwrite parent filter state if it reflects state of children, which null and Matched do not
                 if (Parent is { } && Parent.FilterState.In(NotMatched, DescendantMatched)) {
@@ -97,7 +93,7 @@ namespace ZSpitz.Util.Wpf {
             }
         }
 
-        public void ApplyFilter(Func<TData, bool> predicate) {
+        public void ApplyFilter(Func<TData?, bool> predicate) {
             var matched = predicate(Data);
             FilterState = matched ? Matched : NotMatched;
 
