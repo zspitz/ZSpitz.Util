@@ -5,7 +5,7 @@
     <UseWpf>true</UseWpf>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
-      
+
     <Authors>Zev Spitz</Authors>
     <Company />
     <Product>ZSpitz.Util.Wpf</Product>
@@ -20,21 +20,21 @@
     <AssemblyName>ZSpitz.Util.Wpf</AssemblyName>
     <Version>0.1.0</Version>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
-    
+
     <IncludeSymbols>true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
 
-    <PropertyGroup Condition="'$(CI)' == 'true'">
+  <PropertyGroup Condition="'$(CI)' == 'true'">
         <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
     </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MultiSelectTreeView" Version="1.0.9" />
     <PackageReference Include="ZSpitz.Util" Version="0.1.115" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All" />
   </ItemGroup>
 
 </Project>

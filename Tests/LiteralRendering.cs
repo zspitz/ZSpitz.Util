@@ -50,7 +50,7 @@ namespace Tests {
 
             var timerType = typeof(System.Timers.Timer);
             Expression<Func<Type>> expr = () => timerType;
-            var closureType = ((MemberExpression)expr.Body).Expression.Type;
+            var closureType = ((MemberExpression)expr.Body).Expression!.Type;
 
             // out variables
             var i = 0;
