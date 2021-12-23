@@ -4,6 +4,7 @@
     <TargetFrameworks>netstandard2.0;net48;net452;net5.0;netcoreapp3.1</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
+      
     <Authors>Zev Spitz</Authors>
     <Company />
     <Product>ZSpitz.Util</Product>
@@ -24,6 +25,10 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
+
+    <PropertyGroup Condition="'$(CI)' == 'true'">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    </PropertyGroup>	
 
   <ItemGroup>
     <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All" />

@@ -5,6 +5,7 @@
     <UseWpf>true</UseWpf>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
+      
     <Authors>Zev Spitz</Authors>
     <Company />
     <Product>ZSpitz.Util.Wpf</Product>
@@ -25,6 +26,10 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
   </PropertyGroup>
+
+    <PropertyGroup Condition="'$(CI)' == 'true'">
+        <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="MultiSelectTreeView" Version="1.0.9" />
