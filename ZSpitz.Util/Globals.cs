@@ -1,4 +1,7 @@
-﻿namespace ZSpitz.Util {
+﻿using System.Collections.Generic;
+using static System.Environment;
+
+namespace ZSpitz.Util {
     public static class LanguageNames {
         public const string CSharp = "C#";
         public const string VisualBasic = "Visual Basic";
@@ -16,5 +19,12 @@
         Method
     }
 
-    public record ProcessResult(int ExitCode, string StdOut, string StdErr);
+    public record ProcessResult(int ExitCode, string StdOut, string StdErr) {
+        public override string? ToString() =>
+            StdOut +
+            (StdOut is not (null or "") && ExitCode > 0 ? "\n" : "") +
+            (ExitCode != 0 ?
+                $"{ExitCode}\n{StdErr}" :
+                "");
+    }
 }

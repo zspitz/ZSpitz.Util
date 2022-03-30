@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+#if !NET452
+using System.Collections.Immutable;
+#endif
 
 namespace ZSpitz.Util {
     public static class IEnumerableTupleExtensions {
@@ -32,5 +35,9 @@ namespace ZSpitz.Util {
 
         public static IEnumerable<(T1, T2, int)> WithIndex<T1, T2>(this IEnumerable<(T1, T2)> src) => src.Select((x, index) => (x.Item1, x.Item2, index));
         public static Dictionary<TKey, TValue> ToDictionary<TKey, TValue>(this IEnumerable<(TKey, TValue)> src) where TKey : notnull => src.ToDictionary(t => t.Item1, t => t.Item2);
+
+#if !NET452
+        public static ImmutableDictionary<TKey, TValue> ToImmutableDictionary<TKey, TValue>(this IEnumerable<(TKey, TValue)> src) where TKey : notnull => src.ToImmutableDictionary(t => t.Item1, t => t.Item2);
+#endif
     }
 }
