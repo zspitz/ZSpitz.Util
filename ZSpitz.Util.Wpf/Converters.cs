@@ -20,10 +20,8 @@ namespace ZSpitz.Util.Wpf {
     }
 
     public class AnyVisibilityConverter : ReadOnlyConverterBase {
-        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture) {
-            if (((IEnumerable)value).Any()) { return Visible; }
-            return Collapsed;
-        }
+        public override object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
+            ((IEnumerable)value).Any() ? Visible : (object)Collapsed;
     }
 
     [Obsolete("Use VisibilityConverter with MatchValue set to null and Invert set to true")]
@@ -54,7 +52,7 @@ namespace ZSpitz.Util.Wpf {
                 bool b => b,
                 null => false,
                 _ when value.GetType().UnderlyingIfNullable().IsNumeric() => ((dynamic)value) == 0,
-                _ => throw new NotImplementedException();
+                _ => throw new NotImplementedException()
             } ? Visible : Collapsed;
     }
 }
