@@ -50,6 +50,7 @@ namespace ZSpitz.Util.Wpf {
             value switch {
                 string s => !s.IsNullOrWhitespace(),
                 bool b => b,
+                int i => i != 0, // includes both 1 and -1
                 null => false,
                 _ => throw new NotImplementedException()
             } ? Visible : Collapsed;
