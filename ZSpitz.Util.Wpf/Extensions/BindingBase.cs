@@ -3,7 +3,7 @@ using System.Linq;
 using System.Windows.Data;
 
 namespace ZSpitz.Util.Wpf {
-    public static class BindigBaseExtensions {
+    public static class BindingBaseExtensions {
         public static string? Path(this BindingBase bindingBase) =>
             bindingBase switch {
                 Binding binding => binding.Path.Path,
