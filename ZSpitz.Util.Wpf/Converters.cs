@@ -5,6 +5,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Data;
 using static System.Windows.Visibility;
+using static ZSpitz.Util.Functions;
 
 namespace ZSpitz.Util.Wpf {
     public abstract class ReadOnlyConverterBase : IValueConverter {
@@ -49,10 +50,11 @@ namespace ZSpitz.Util.Wpf {
         public override object Convert(object value, Type targetType, object parameter, CultureInfo culture) =>
             value switch {
                 string s => !s.IsNullOrWhitespace(),
+                Uri => true,
                 bool b => b,
-                int i => i != 0, // includes both 1 and -1
                 null => false,
-                _ => throw new NotImplementedException()
+                _ when value.GetType().UnderlyingIfNullable().IsNumeric() => ((dynamic)value) == 0,
+                _ => throw new NotImplementedException();
             } ? Visible : Collapsed;
     }
 }
