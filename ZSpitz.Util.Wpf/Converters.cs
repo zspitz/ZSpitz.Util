@@ -51,7 +51,7 @@ public class TruthyVisibilityConverter : ReadOnlyConverterBase {
             Uri => true,
             bool b => b,
             null => false,
-            _ when value.GetType().UnderlyingIfNullable().IsNumeric() => ((dynamic)value) == 0,
+            _ when value.GetType().UnderlyingIfNullable().IsNumeric() => ((dynamic)value) != 0,
             _ => throw new NotImplementedException()
         } ? Visible : Collapsed;
 }
