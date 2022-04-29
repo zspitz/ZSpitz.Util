@@ -33,7 +33,7 @@ public static class DependencyObjectExtensions {
     }
 
     public static IEnumerable<T> VisualChildren<T>(this DependencyObject? o, bool andSelf) where T : DependencyObject =>
-        VisualChildren(o).OfType<T>();
+        VisualChildren(o, andSelf).OfType<T>();
 
     [Obsolete("Use VisualChildren")]
     public static IEnumerable<T> FindVisualChildren<T>(this DependencyObject o) where T : DependencyObject {
